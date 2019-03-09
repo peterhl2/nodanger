@@ -1,5 +1,6 @@
 import React, { Component } from "react"
 import QueryResults from "./QueryResults"
+import { Button, Popup } from 'semantic-ui-react'
 
 class Query extends Component {
     constructor() {
@@ -32,10 +33,18 @@ class Query extends Component {
                     <div className="col" />
                 </div>
 
-                <button onClick={this.handleQuery} id="query_time" className="btn btn-primary" style={{"margin": "10px"}}>Time</button>
-                <button onClick={this.handleQuery} id="query_date" className="btn btn-primary" style={{"margin": "10px"}}>Date</button>
-                <button onClick={this.handleQuery} id="query_type" className="btn btn-primary" style={{"margin": "10px"}}>Type</button>
-                <button onClick={this.handleQuery} id="query_location" className="btn btn-primary" style={{"margin": "10px"}}>Location</button>
+                <Popup trigger={<button onClick={this.handleQuery} id="query_time" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Time</button>}
+                       position="bottom center"
+                       content="24 hour system" />
+                <Popup trigger={<button onClick={this.handleQuery} id="query_date" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Date</button>}
+                       position="bottom center"
+                       content="mm/dd/yyyy" />
+                <Popup trigger={<button onClick={this.handleQuery} id="query_type" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Type</button>}
+                       position="bottom center"
+                       content="Theft, Car, MIP" />
+                <Popup trigger={<button onClick={this.handleQuery} id="query_location" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Location</button>}
+                       position="bottom center"
+                       content="Grainger, ECEB, Bardeen" />
 
                 <QueryResults queryData={this.state.queryData}/>
             </div>

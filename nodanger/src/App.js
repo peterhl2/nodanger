@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 
 import 'bootstrap/dist/css/bootstrap.css';
+import 'semantic-ui-css/semantic.min.css'
 
 import Query from "./components/Query"
 
