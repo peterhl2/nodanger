@@ -6,6 +6,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'semantic-ui-css/semantic.min.css'
 
 import Query from "./components/Query"
+import Map from "./components/Map"
 
 class App extends Component {
     render() {
@@ -18,6 +19,8 @@ class App extends Component {
                     </p>
 
                     <Query />
+
+                    <Map />
                 </header>
             </div>
         );
