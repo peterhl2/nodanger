@@ -5,6 +5,7 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'semantic-ui-css/semantic.min.css'
 
+import User from "./components/User"
 import Query from "./components/Query"
 import Map from "./components/Map"
 
@@ -17,6 +18,8 @@ class App extends Component {
                     <p>
                         Welcome to No Danger 404, a future without risk
                     </p>
+
+                    <User />
 
                     <Query />
 
