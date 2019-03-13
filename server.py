@@ -1,4 +1,5 @@
 from http.server import SimpleHTTPRequestHandler,HTTPServer
+from pathlib import Path
 import sys
 import os
 import subprocess
@@ -21,22 +22,32 @@ class RequestHandler(SimpleHTTPRequestHandler):
             self, request, client_address, server, directory=web_dir)
 
     def do_GET(self):
-        route_mapping = {
-            '/': self.get_homepage,
-            '/data': self.get_data
-        }
 
-        try:
-            api_fn = route_mapping[self.path.lower()]
-            return api_fn()
+        request_path = Path(os.path.join(self.directory, self.path[1:]))
+        if request_path.is_file():
+            print(request_path, 'is file')
+            self.send_response(200)
+            self.send_header('Content-type','text/html')
+            self.end_headers()
+            with open(str(request_path), 'rb') as file:
+                self.wfile.write(file.read())
 
-        except:
-            pass
-            # print('bad request to {}'.format(self.path).encode('utf-8'))
-            # self.send_response(200)
-            # self.send_header('Content-type','text/html')
-            # self.end_headers()
-            # self.wfile.write('Bad url {}'.format(self.path).encode('utf-8'))
+        else:
+            route_mapping = {
+                '/data': self.get_data
+            }
+
+            try:
+                api_fn = route_mapping[self.path.lower()]
+                return api_fn()
+
+            except:
+                pass
+                # print('bad request to {}'.format(self.path).encode('utf-8'))
+                # self.send_response(200)
+                # self.send_header('Content-type','text/html')
+                # self.end_headers()
+                # self.wfile.write('Bad url {}'.format(self.path).encode('utf-8'))
 
     def do_POST(self):
 
@@ -85,7 +96,7 @@ def start_server():
 
     try:
         server = HTTPServer(('', PORT_NUMBER), RequestHandler)
-        print('Started httpserver on port ' , PORT_NUMBER)
+        print('Started httpserver on http://localhost:%d' % PORT_NUMBER)
 
         server.serve_forever()
 
