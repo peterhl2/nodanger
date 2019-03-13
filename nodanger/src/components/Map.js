@@ -1,9 +1,8 @@
 import React, { Component } from "react"
 import GoogleMapReact from 'google-map-react'
-
-const Start = ({ text }) => <div style={{"color":"red"}}>{text}</div>
-const Dest = ({ text }) => <div style={{"color":"blue"}}>{text}</div>
-const Crime = ({ text }) => <div style={{"color":"purple"}}>{text}</div>
+import Start from "./markers/Start"
+import Dest from "./markers/Dest"
+import Crime from "./markers/Crime"
 
 class Map extends Component {
     static defaultProps = {
