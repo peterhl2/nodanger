@@ -20,7 +20,9 @@ class App extends Component {
 
                     <Query />
 
-                    <Map />
+                    <Map    start={{"lat":"40.1", "lng":"-88.24"}}
+                            dest={{"lat":"40.12", "lng":"-88.21"}}
+                            crimes={[{"lat":"40.1105883", "lng":"-88.2220708"}, {"lat":"40.110", "lng":"-88.22"}]}/>
                 </header>
             </div>
         );
