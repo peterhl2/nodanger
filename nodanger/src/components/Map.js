@@ -1,6 +1,5 @@
 import React, { Component } from "react"
 import GoogleMapReact from 'google-map-react'
-import CrimeMkrs from "./CrimeMkrs"
 
 const Start = ({ text }) => <div style={{"color":"red"}}>{text}</div>
 const Dest = ({ text }) => <div style={{"color":"blue"}}>{text}</div>
