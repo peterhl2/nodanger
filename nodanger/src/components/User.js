@@ -1,6 +1,9 @@
 import React, { Component } from "react"
 
-class SignIn extends Component {
+import 'bootstrap/dist/css/bootstrap.css';
+import "./User.css"
+
+class User extends Component {
     constructor() {
         super()
         this.state = {
@@ -20,7 +23,11 @@ class SignIn extends Component {
         const {name} = event.target
 
         if (name === "signup") {
-            //Generate display page
+            //Check database if user exists
+
+            //If not, create new user
+
+            //If so, try again
         } else if (name === "login") {
             //Check database if user exists
 
@@ -32,25 +39,31 @@ class SignIn extends Component {
 
     render() {
         return (
-            <div className="signIn">
-                <input className=""
+            <div className="user">
+                <input className="row"
                        type="text"
                        placeholder="Username"
                        name="username"
                        value={this.state.username}
                        onChange={this.handleChange}/>
-                <input className=""
+                <input className="row"
                        type="text"
                        placeholder="Password"
                        name="password"
                        value={this.state.password}
                        onChange={this.handleChange}/>
 
-                <button name="signup" onClick={this.handleSubmit}>Sign Up</button>
-                <button name="login" onClick={this.handleSubmit}>Log In</button>
+                <div className="row">
+                    <button className="btn btn-primary col-4 btnSpace"
+                               name="login"
+                               onClick={this.handleSubmit}>Log In</button>
+                    <button className="btn btn-primary col-4 btnSpace"
+                            name="signup"
+                            onClick={this.handleSubmit}>Sign Up</button>
+                </div>
             </div>
         )
     }
 }
 
-export default SignIn
+export default User
