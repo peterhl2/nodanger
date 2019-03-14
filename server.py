@@ -25,9 +25,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
         request_path = Path(os.path.join(self.directory, self.path[1:]))
         if request_path.is_file():
-            print(request_path, 'is file')
+            print(self.path, 'is file')
             self.send_response(200)
-            self.send_header('Content-type','text/html')
             self.end_headers()
             with open(str(request_path), 'rb') as file:
                 self.wfile.write(file.read())
