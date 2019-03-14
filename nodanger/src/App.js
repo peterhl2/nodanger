@@ -9,6 +9,20 @@ import Query from "./components/Query"
 import Map from "./components/Map"
 
 class App extends Component {
+
+    componentDidMount() {
+      console.log('start dummy request');
+      fetch('http:localhost:8080/data')
+        .then(response=> response.text())
+        .then(r => {
+alert('r',r)
+          console.log(r);
+          console.log('received');
+        }
+        )
+        .catch(err=>console.log('ERR', err));
+    }
+
     render() {
         return (
             <div className="App">
