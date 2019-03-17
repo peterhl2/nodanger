@@ -9,6 +9,7 @@ import json
 PORT_NUMBER = 8080
 index_dir = 'nodanger/build'
 
+
 class RequestHandler(SimpleHTTPRequestHandler):
 
     def __init__(self, request, client_address, server):
@@ -16,32 +17,35 @@ class RequestHandler(SimpleHTTPRequestHandler):
         web_dir = os.getcwd()
         for dir in ('nodanger','build'):
             web_dir = os.path.join(web_dir, dir)
+        self.route_mapping = {
+            '/': self.get_homepage,
+            '/getdata': self.get_data,
+            '/senddata': self.send_data
+        }
 
-        # server_dir = os.path.join(os.getcwd(), index_dir)
         SimpleHTTPRequestHandler.__init__(
             self, request, client_address, server, directory=web_dir)
 
     def do_GET(self):
 
+        # runs if path matches file in build directory
         request_path = Path(os.path.join(self.directory, self.path[1:]))
+
         if request_path.is_file():
-            print(self.path, 'is file')
+            print('GET file %s' % self.path)
             self.send_response(200)
             self.end_headers()
             with open(str(request_path), 'rb') as file:
                 self.wfile.write(file.read())
 
         else:
-            route_mapping = {
-                '/data': self.get_data
-            }
 
             try:
-                api_fn = route_mapping[self.path.lower()]
+                api_fn = self.route_mapping[self.path.lower()]
                 return api_fn()
 
             except:
-                pass
+                print('no api fn found for %s' % self.path)
                 # print('bad request to {}'.format(self.path).encode('utf-8'))
                 # self.send_response(200)
                 # self.send_header('Content-type','text/html')
@@ -50,21 +54,21 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
 
-        route_mapping = {
-            '/': self.get_home,
-            '/data': self.get_data
-        }
+        body_size = int(self.headers['Content-Length'])
+        body = self.rfile.read(body_size)
+        js = json.loads(body)
 
         try:
-            api_fn = route_mapping[self.path.lower()]
-            return api_fn()
+            api_fn = self.route_mapping[self.path.lower()]
+            return api_fn(js)
 
         except:
-            print('bad request to {}'.format(self.path).encode('utf-8'))
-            self.send_response(200)
-            self.send_header('Content-type','text/html')
-            self.end_headers()
-            self.wfile.write('Bad url {}'.format(self.path).encode('utf-8'))
+            pass
+            # print('bad request to {}'.format(self.path).encode('utf-8'))
+            # self.send_response(200)
+            # self.send_header('Content-type','text/html')
+            # self.end_headers()
+            # self.wfile.write('Bad url {}'.format(self.path).encode('utf-8'))
 
 
     def get_homepage(self):
@@ -72,23 +76,30 @@ class RequestHandler(SimpleHTTPRequestHandler):
             route: /
             returns: homepage
         """
-        self.send_response(200)
-        self.send_header('Content-type','text/html')
-        self.end_headers()
-        self.wfile.write("This is the homepage".encode('utf-8'))
-        return
+        self.path = '/index.html'
+        return self.do_GET()
+
 
     def get_data(self):
         """
-            route: data
+            route: getdata
             returns: some data
+            called from App.js (componentDidMount)
         """
-        print('let\'s get some data')
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
         myjson = {'some key': 'some val'}
         self.wfile.write(json.dumps(myjson).encode('utf-8'))
+        return
+
+    def send_data(self, data):
+        """
+            route: senddata
+            returns: success message that we received data
+            called from App.js (componentDidMount)
+        """
+        self.wfile.write(json.dumps({'data_read': data}).encode('utf-8'))
         return
 
 def start_server():
