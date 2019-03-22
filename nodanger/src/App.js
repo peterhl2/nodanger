@@ -16,6 +16,8 @@ class App extends Component {
         super()
         this.state = {
             loggedIn: false,
+            start: {"lat":"40.1", "lng":"-88.24"},
+            dest: {"lat":"40.12", "lng":"-88.21"},
         }
         this.logIn = this.logIn.bind(this)
     }
@@ -60,8 +62,8 @@ class App extends Component {
 
                     {page}
 
-                    <Map    start={{"lat":"40.1", "lng":"-88.24"}}
-                            dest={{"lat":"40.12", "lng":"-88.21"}}
+                    <Map    start={this.state.start}
+                            dest={this.state.dest}
                             crimes={[{"lat":"40.1105883", "lng":"-88.2220708"}, {"lat":"40.110", "lng":"-88.22"}]}/>
                 </header>
             </div>
