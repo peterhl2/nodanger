@@ -5,10 +5,18 @@ import os
 import subprocess
 import argparse
 import json
+import MySQLdb
 
 PORT_NUMBER = 8080
 index_dir = 'nodanger/build'
 
+# Establish connection to local database
+# db = MySQLdb.connect(host="localhost",    # your host, usually localhost
+#                      user="root",         # your username
+#                      passwd="strangerdanger",  # your password
+#                      db="crime_schema")
+#
+# cur = db.cursor()
 
 class RequestHandler(SimpleHTTPRequestHandler):
 
