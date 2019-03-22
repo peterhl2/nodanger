@@ -79,13 +79,13 @@ class User extends Component {
     render() {
         return (
             <div className="user">
-                <input className="row"
+                <input className="row col"
                        type="text"
                        placeholder="Username"
                        name="username"
                        value={this.state.username}
                        onChange={this.handleChange}/>
-                <input className="row"
+                <input className="row col"
                        type="text"
                        placeholder="Password"
                        name="password"
@@ -99,8 +99,8 @@ class User extends Component {
                     <button className="btn btn-primary col-4 btnSpace"
                             name="signup"
                             onClick={this.handleSubmit}>Sign Up</button>
-                    {this.state.tryAgain ? <TryAgain /> : null}
                 </div>
+                {this.state.tryAgain ? <TryAgain /> : null}
             </div>
         )
     }

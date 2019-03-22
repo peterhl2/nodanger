@@ -1,5 +1,7 @@
 import React from "react"
 
+import 'bootstrap/dist/css/bootstrap.css'
+
 function TryAgain(props) {
     return (
         <div className="tryagain">
