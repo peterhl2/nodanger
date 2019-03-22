@@ -7,7 +7,9 @@ class Query extends Component {
         super()
         this.state = {
             query: "",
-            queryData: []
+            queryData: [],
+            start: "",
+            dest: "",
         }
         this.handleQuery = this.handleQuery.bind(this)
         this.handleChange = this.handleChange.bind(this)
@@ -20,17 +22,36 @@ class Query extends Component {
     }
 
     handleChange(event) {
-        const {value} = event.target
-        this.setState({query: value})
+        const {name, value} = event.target
+        this.setState({[name]: [value]})
     }
 
     render() {
         return (
             <div className="query">
                 <div className="row">
-                    <div className="col" />
-                    <input className="col-10" type="text" placeholder="Query" value={this.state.query} onChange={this.handleChange}/>
-                    <div className="col" />
+                    <input className="col-10"
+                           name="query"
+                           type="text"
+                           placeholder="Query"
+                           value={this.state.query}
+                           onChange={this.handleChange}/>
+                </div>
+                <div className="row">
+                    <input className="col-10"
+                          name="start"
+                          type="text"
+                          placeholder="Start Location"
+                          value={this.state.start}
+                          onChange={this.handleChange}/>
+                </div>
+                <div className="row">
+                    <input className="col-10"
+                         name="dest"
+                         type="text"
+                         placeholder="Destination"
+                         value={this.state.dest}
+                         onChange={this.handleChange}/>
                 </div>
 
                 <Popup trigger={<button onClick={this.handleQuery} id="query_time" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Time</button>}

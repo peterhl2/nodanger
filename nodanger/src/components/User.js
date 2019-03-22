@@ -63,6 +63,7 @@ class User extends Component {
         if (name === "signup") {
             if (!inUse) { // Doesn't exist, create user
                 this.createUser()
+                this.props.logIn()
             } else { // User exists, try to make new one
                 this.setState({tryAgain: true})
             }
