@@ -1,7 +1,10 @@
 import React, { Component } from "react"
+import TryAgain from "./TryAgain"
 
-import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap/dist/css/bootstrap.css'
 import "./User.css"
+
+const server_uri = 'http://localhost:8080'
 
 class User extends Component {
     constructor() {
@@ -9,9 +12,40 @@ class User extends Component {
         this.state = {
             username: "",
             password: "",
+            tryAgain: false,
         }
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+    }
+
+    checkUserExists() {
+      const fetch_uri = `${server_uri}/senddata`
+      let exists = false
+      fetch(fetch_uri, {
+          method: 'POST',
+          body: JSON.stringify({"username": this.state.username})
+      })
+        .then(response=>response.json())
+        .then(data => {
+            exists = data.exists
+        })
+        .catch(console.err)
+        return exists
+    }
+
+    createUser() {
+        const fetch_uri = `${server_uri}/senddata`
+        const newUser = {
+            username: this.state.username,
+            password: this.state.password,
+        }
+        fetch(fetch_uri, {
+            method: 'POST',
+            body: JSON.stringify(newUser)
+        })
+          .then(response=> response.json())
+          .then(console.log)
+          .catch(console.err)
     }
 
     handleChange(event) {
@@ -21,21 +55,24 @@ class User extends Component {
 
     handleSubmit(event) {
         const {name} = event.target
+        // Set default tryAgain to not display
+        this.setState({tryAgain: false})
+        // Check database if user exists
+        const inUse = this.checkUserExists()
 
         if (name === "signup") {
-            //Check database if user exists
-
-            //If not, create new user
-
-            //If so, try again
-            this.props.logIn()
+            if (!inUse) { // Doesn't exist, create user
+                this.createUser()
+            } else { // User exists, try to make new one
+                this.setState({tryAgain: true})
+            }
         } else if (name === "login") {
-            //Check database if user exists
-
-            //Valid: give normal page
-
-            //Invalid: print try again
-            this.props.logIn()
+            if (inUse) { //Valid: give normal page
+                //TODO: Get User Data
+                this.props.logIn()
+            } else { // Invalid: try again
+                this.setState({tryAgain: true})
+            }
         }
     }
 
@@ -62,6 +99,7 @@ class User extends Component {
                     <button className="btn btn-primary col-4 btnSpace"
                             name="signup"
                             onClick={this.handleSubmit}>Sign Up</button>
+                    {this.state.tryAgain ? <TryAgain /> : null}
                 </div>
             </div>
         )
