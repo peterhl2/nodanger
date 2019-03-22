@@ -12,12 +12,12 @@ import Map from "./components/Map"
 const server_uri = 'http://localhost:8080'
 
 class App extends Component {
-
-    // here is an example on how to call server.py's get_data
-    componentDidMount() {
-
-        this.getRequest();
-        this.postRequest();
+    constructor() {
+        super()
+        this.state = {
+            loggedIn: false,
+        }
+        this.logIn = this.logIn.bind(this)
     }
 
     getRequest() {
@@ -39,7 +39,17 @@ class App extends Component {
         .catch(console.err);
     }
 
+    logIn(event) {
+        this.setState({loggedIn: true})
+    }
+
     render() {
+        let page
+        if (!this.state.loggedIn)
+            page = <User logIn={this.logIn}/>
+        else {
+            page = <Query />
+        }
         return (
             <div className="App">
                 <header className="App-header">
@@ -48,9 +58,7 @@ class App extends Component {
                         Welcome to No Danger 404, a future without risk
                     </p>
 
-                    <User />
-
-                    <Query />
+                    {page}
 
                     <Map    start={{"lat":"40.1", "lng":"-88.24"}}
                             dest={{"lat":"40.12", "lng":"-88.21"}}

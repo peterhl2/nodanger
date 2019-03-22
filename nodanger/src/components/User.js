@@ -28,12 +28,14 @@ class User extends Component {
             //If not, create new user
 
             //If so, try again
+            this.props.logIn()
         } else if (name === "login") {
             //Check database if user exists
 
             //Valid: give normal page
 
             //Invalid: print try again
+            this.props.logIn()
         }
     }
 
