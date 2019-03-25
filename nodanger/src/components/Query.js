@@ -24,13 +24,14 @@ class Query extends Component {
 
         let queryObj;
         if (id === "columns") {
-            queryObj = {type: "columns"}
+            queryObj = {"type": "columns"}
         } else if (id === "crimes") {
-            queryObj = {type: "crimes"}
+            queryObj = {"type": "crimes"}
         } else {
             queryObj = {
-                type: "query",
-                where: [value],
+                "type": "query",
+                "col": id,
+                "where": value,
             }
         }
         const fetch_uri = `${server_uri}/senddata`
