@@ -26,6 +26,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
         SimpleHTTPRequestHandler.__init__(
             self, request, client_address, server, directory=web_dir)
 
+    def end_headers(self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        SimpleHTTPRequestHandler.end_headers(self)
+
     def do_GET(self):
 
         # runs if path matches file in build directory
