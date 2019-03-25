@@ -11,12 +11,12 @@ PORT_NUMBER = 8080
 index_dir = 'nodanger/build'
 
 # Establish connection to local database
-# db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-#                      user="root",         # your username
-#                      passwd="strangerdanger",  # your password
-#                      db="crime_schema")
-#
-# cur = db.cursor()
+db = MySQLdb.connect(host="localhost",    # your host, usually localhost
+                     user="root",         # your username
+                     passwd="strangerdanger",  # your password
+                     db="crime_schema")
+
+cur = db.cursor()
 
 class RequestHandler(SimpleHTTPRequestHandler):
 
@@ -97,8 +97,13 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        myjson = {'some key': 'some val'}
-        self.wfile.write(json.dumps(myjson).encode('utf-8'))
+        # myjson = {'some key': 'some val'}
+        cur.execute("SELECT crime_type FROM crimedata")
+        row = cur.fetchall()
+        # print("\n\n\n\n\n\n\n\n\n\n")
+        # print(row)
+        myjson = {'key': 'hello'}
+        self.wfile.write(json.dumps(row).encode('utf-8'))
         return
 
     def send_data(self, data):
@@ -107,6 +112,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
             returns: success message that we received data
             called from App.js (componentDidMount)
         """
+        print("\n\n\n\n\n\n\n\n\n\n")
+        print(data)
         self.wfile.write(json.dumps({'data_read': data}).encode('utf-8'))
         return
 
