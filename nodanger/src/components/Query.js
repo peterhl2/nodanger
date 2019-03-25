@@ -2,6 +2,8 @@ import React, { Component } from "react"
 import QueryResults from "./QueryResults"
 import { Button, Popup } from 'semantic-ui-react'
 
+const server_uri = 'http://localhost:8080'
+
 class Query extends Component {
     constructor() {
         super()
@@ -19,6 +21,26 @@ class Query extends Component {
         const {id} = event.target
         const value = this.state.query
         console.log(id, value)
+
+        let queryObj;
+        if (id === "columns") {
+            queryObj = {type: "columns"}
+        } else if (id === "crimes") {
+            queryObj = {type: "crimes"}
+        } else {
+            queryObj = {
+                type: "query",
+                where: [value],
+            }
+        }
+        const fetch_uri = `${server_uri}/senddata`
+        fetch(fetch_uri, {
+            method: 'POST',
+            body: JSON.stringify(queryObj)
+        })
+          .then(response=> response.json())
+          .then(console.log)
+          .catch(console.err);
     }
 
     handleChange(event) {
@@ -54,6 +76,15 @@ class Query extends Component {
                          onChange={this.handleChange}/>
                 </div>
 
+                <Popup trigger={<button onClick={this.handleQuery} id="columns" className="ui icon btn btn-danger" style={{"margin": "10px"}}>Columns</button>}
+                       position="bottom center"
+                       content="List Col names" />
+                <Popup trigger={<button onClick={this.handleQuery} id="crimes" className="ui icon btn btn-danger" style={{"margin": "10px"}}>Crimes</button>}
+                       position="bottom center"
+                       content="List Crime Types" />
+                <Popup trigger={<button onClick={this.handleQuery} id="query_date" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Date</button>}
+                       position="bottom center"
+                       content="mm/dd/yyyy" />
                 <Popup trigger={<button onClick={this.handleQuery} id="query_time" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Time</button>}
                        position="bottom center"
                        content="24 hour system" />
