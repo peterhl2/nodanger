@@ -42,6 +42,22 @@ class App extends Component {
     }
 
     logIn(event) {
+        let d = new Date()
+        const fetch_uri = `${server_uri}/senddata`
+        fetch(fetch_uri, {
+            method: 'POST',
+            body: JSON.stringify({
+                weekday: d.getDay(),
+                day: d.getDate(),
+                month: d.getMonth(),
+                year: d.getFullYear(),
+                hour: d.getHours(),
+            })
+        })
+          .then(response=> response.json())
+          .then(console.log)
+          .catch(console.err);
+
         this.setState({loggedIn: true})
     }
 
