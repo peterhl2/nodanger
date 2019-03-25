@@ -13,9 +13,9 @@ class Map extends Component {
         zoom: 15
     }
 
-    createStartDest(start, dest) {
-        const startMkr = <Start lat={start.lat} lng={start.lng} text={'Start'} />
-        const destMkr = <Dest lat={dest.lat} lng={dest.lng} text={'Dest'} />
+    createStartDest(start, dest, key) {
+        const startMkr = <Start key={key} lat={start.lat} lng={start.lng} text={'Start'} />
+        const destMkr = <Dest key={key+1} lat={dest.lat} lng={dest.lng} text={'Dest'} />
         return [startMkr, destMkr]
     }
 
@@ -23,6 +23,7 @@ class Map extends Component {
         let crimeMkrs = []
         for (let i=0; i<crimes.length; i++) {
             crimeMkrs.push(<Crime
+                                key={i+2}
                                 lat={crimes[i].lat}
                                 lng={crimes[i].lng}
                                 text={'Crime!!!!!'}
@@ -32,7 +33,7 @@ class Map extends Component {
     }
 
     render() {
-        let startend = this.createStartDest(this.props.start, this.props.dest)
+        let startend = this.createStartDest(this.props.start, this.props.dest, 0)
         let crimes = this.createCrimeMkrs(this.props.crimes)
 
         return (
