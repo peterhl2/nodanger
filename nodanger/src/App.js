@@ -68,6 +68,7 @@ class App extends Component {
         else {
             page = <Query />
         }
+        
         return (
             <div className="App">
                 <header className="App-header">
