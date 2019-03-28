@@ -22,7 +22,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
     #used to store parameters for queries requests
     insertparams = []
     deleteparams = []
-    updateparams = []
+    updateconditions = ""
     params = ""
     route = ""
 
@@ -99,11 +99,11 @@ class RequestHandler(SimpleHTTPRequestHandler):
                     # print(self.route_mapping[self.route])
                     # print(self.get_crimebytype)
                     # print(route)
-                    # if len(route_splt) == 3:
-                    #     self.param = route_splt[2].replace("%20", " ")
-                    # elif len(route_splt) > 3:
-                    #     self.param = route_splt[2].replace("%20", " ")
-                    #     self.conditions
+                    if len(route_splt) == 3:
+                        self.param = route_splt[2].replace("%20", " ")
+                    elif len(route_splt) > 3:
+                        self.param = route_splt[2].replace("%20", " ")
+                        self.updateconditions = route_splt[3].replace("%20", " ")
                         # print(self.param)
                     api_fn = self.route_mapping["/"+route_splt[1]]
                     return api_fn()
@@ -249,9 +249,9 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-type','application/json')
         self.end_headers()
         print("\n\n\nGOT THERE")
-        print(self.param)
-        cur.execute("INSERT INTO crimedata (id) VALUES (%s)", [self.param])
-        self.wfile.write(json.dumps("INSERTED").encode('utf-8'))
+        print(self.param, self.updateconditions)
+        cur.execute("UPDATE crimedata SET crime_type=%s WHERE id=%s", [self.updateconditions, self.param])
+        self.wfile.write(json.dumps("UPDATED").encode('utf-8'))
         return
 
         "UPDATE Customers SET ContactName='Juan' WHERE id = '9000'"
