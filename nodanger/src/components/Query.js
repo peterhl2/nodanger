@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import QueryResults from "./QueryResults"
 import { Button, Popup } from 'semantic-ui-react'
+import Selectors from "./Selectors"
 
 const server_uri = 'http://localhost:8080'
 
@@ -13,6 +14,10 @@ class Query extends Component {
             start: "",
             dest: "",
             fields: "",
+            crimeType: "",
+            weekday: "",
+            latitude: "",
+            longtitude: "",
         }
         this.handleQuery = this.handleQuery.bind(this)
         this.handleChange = this.handleChange.bind(this)
@@ -114,6 +119,7 @@ class Query extends Component {
                          placeholder="Argument Fields"
                          value={this.state.fields}
                          onChange={this.handleChange}/>
+                         <Selectors handleChange={this.handleChange} crimeType={this.state.crimeType} weekday={this.state.weekday} latitude={this.state.latitude} longtitude={this.state.longtitiude}/>
                 </div>
 
                 {/*Full Queries*/}
