@@ -58,7 +58,8 @@ class User extends Component {
         // Set default tryAgain to not display
         this.setState({tryAgain: false})
         // Check database if user exists
-        const inUse = this.checkUserExists()
+        // const inUse = this.checkUserExists()
+        const inUse = false
 
         if (name === "signup") {
             if (!inUse) { // Doesn't exist, create user

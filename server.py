@@ -19,6 +19,29 @@ db = MySQLdb.connect(host="localhost",    # your host, usually localhost
 cur = db.cursor()
 
 class RequestHandler(SimpleHTTPRequestHandler):
+    #used to store parameters for queries requests
+    insertparams = []
+    deleteparams = []
+    updateparams = []
+    params = ""
+    route = ""
+
+    def parse_route(routeMap):
+        print(routeMap)
+        if routeMap == "/":
+            return routeMap
+        route_splt = routeMap.split("/")
+        print(route_splt)
+        route = "/"+route_splt[1]
+        print(route)
+        if len(route_splt) > 2:
+            param = route_splt[2]
+        return route
+
+    def getCrimeTypes():
+        cur.execute("SELECT DISTINCT crime_type FROM crimedata")
+        crime_types = cur.fetchall()
+        return crime_types
 
     def __init__(self, request, client_address, server):
         # stupid cross-platform way to change directory to nodanger/src/build
@@ -28,7 +51,13 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.route_mapping = {
             '/': self.get_homepage,
             '/getdata': self.get_data,
-            '/senddata': self.send_data
+            '/senddata': self.send_data,
+            '/getcrimetypes': self.get_crimetypes,
+            '/getcrimebyid': self.get_crimebyid,
+            '/getcrimebytype': self.get_crimebytype,
+            '/insert': self.insert,
+            '/delete': self.delete,
+            '/update': self.update
         }
 
         SimpleHTTPRequestHandler.__init__(
@@ -53,11 +82,42 @@ class RequestHandler(SimpleHTTPRequestHandler):
         else:
 
             try:
-                api_fn = self.route_mapping[self.path.lower()]
-                return api_fn()
+                print('\n\n\n')
+                #parse routeMap for paramters
+                routeMap = self.path
+                print(routeMap)
+                if routeMap == "/":
+                    self.route = routeMap
+                    api_fn = self.route_mapping[self.route]
+                    return api_fn()
+                else:
+                    route_splt = routeMap.split("/")
+
+                    self.route = "/"+route_splt[1]
+                    # print(self.route)
+                    # print("route is:")
+                    # print(self.route_mapping[self.route])
+                    # print(self.get_crimebytype)
+                    # print(route)
+                    # if len(route_splt) == 3:
+                    #     self.param = route_splt[2].replace("%20", " ")
+                    # elif len(route_splt) > 3:
+                    #     self.param = route_splt[2].replace("%20", " ")
+                    #     self.conditions
+                        # print(self.param)
+                    api_fn = self.route_mapping["/"+route_splt[1]]
+                    return api_fn()
+
+
+
+                # print("\n" + self.param)
+                # print("HELLO")
+
+                # api_fn = self.route_mapping[self.route]
+                # return api_fn()
 
             except:
-                print('no api fn found for %s' % self.path)
+                print('no api fn found for %s' % self.route)
                 # print('bad request to {}'.format(self.path).encode('utf-8'))
                 # self.send_response(200)
                 # self.send_header('Content-type','text/html')
@@ -101,14 +161,100 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        # myjson = {'some key': 'some val'}
-        cur.execute("SELECT crime_type FROM crimedata")
-        row = cur.fetchall()
-        # print("\n\n\n\n\n\n\n\n\n\n")
-        # print(row)
-        myjson = {'key': 'hello'}
-        self.wfile.write(json.dumps(row).encode('utf-8'))
+        # data = queries.getCrimeByType()
+        self.wfile.write(json.dumps("HELLO").encode('utf-8'))
         return
+
+    def get_crimetypes(self):
+        """
+            route: getCrimeTypes
+            returns: crime types
+            called from App.js (componentDidMount)
+        """
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+        cur.execute("SELECT DISTINCT crime_type FROM crimedata")
+        crime_types = cur.fetchall()
+        self.wfile.write(json.dumps(crime_types).encode('utf-8'))
+        return
+
+    def get_crimebyid(self):
+        """
+            route: getCrimeTypes
+            returns: crime types
+            called from App.js (componentDidMount)
+        """
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+        cur.execute("SELECT * FROM crimedata WHERE id=%s", [self.param])
+        crime = cur.fetchall()
+        self.wfile.write(json.dumps(crime).encode('utf-8'))
+        return
+
+    def get_crimebytype(self):
+        """
+            route: getCrimeTypes
+            returns: crime types
+            called from App.js (componentDidMount)
+        """
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+        print("\n\n\nGOT THERE")
+        print(self.param)
+        cur.execute("SELECT * FROM crimedata WHERE crime_type=%s", [self.param])
+        crimes = cur.fetchall()
+        self.wfile.write(json.dumps(crimes).encode('utf-8'))
+        return
+
+    def insert(self):
+        """
+            route: getCrimeTypes
+            returns: crime types
+            called from App.js (componentDidMount)
+        """
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+        print("\n\n\nGOT THERE")
+        print(self.param)
+        cur.execute("INSERT INTO crimedata (id) VALUES (%s)", [self.param])
+        self.wfile.write(json.dumps("INSERTED").encode('utf-8'))
+        return
+
+    def delete(self):
+        """
+            route: getCrimeTypes
+            returns: crime types
+            called from App.js (componentDidMount)
+        """
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+        print("\n\n\nGOT THERE")
+        print(self.param)
+        cur.execute("DELETE FROM crimedata WHERE id=%s", [self.param])
+        self.wfile.write(json.dumps("DELETED").encode('utf-8'))
+        return
+
+    def update(self):
+        """
+            route: getCrimeTypes
+            returns: crime types
+            called from App.js (componentDidMount)
+        """
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+        print("\n\n\nGOT THERE")
+        print(self.param)
+        cur.execute("INSERT INTO crimedata (id) VALUES (%s)", [self.param])
+        self.wfile.write(json.dumps("INSERTED").encode('utf-8'))
+        return
+
+        "UPDATE Customers SET ContactName='Juan' WHERE id = '9000'"
 
     def send_data(self, data):
         """
@@ -116,9 +262,15 @@ class RequestHandler(SimpleHTTPRequestHandler):
             returns: success message that we received data
             called from App.js (componentDidMount)
         """
-        print("\n\n\n\n\n\n\n\n\n\n")
+        self.send_response(201)
+        print("\n\n\n\n")
         print(data)
-        self.wfile.write(json.dumps({'data_read': data}).encode('utf-8'))
+        if(data['type'] == 'crimes'):
+            print("BYE")
+            response = queries.getCrimeTypes()
+
+        print(response)
+        self.wfile.write(json.dumps(response).encode('utf-8'))
         return
 
 def start_server():

@@ -22,6 +22,14 @@ class App extends Component {
         this.logIn = this.logIn.bind(this)
     }
 
+    // componentDidMount() {
+    //   const fetch_uri = `${server_uri}/getdata`
+    //   fetch(fetch_uri)
+    //     .then(response=> response.json())
+    //     .then(console.log)
+    //     .catch(console.err);
+    // }
+
     getRequest() {
       const fetch_uri = `${server_uri}/getdata`
       fetch(fetch_uri)
@@ -68,7 +76,7 @@ class App extends Component {
         else {
             page = <Query />
         }
-        
+
         return (
             <div className="App">
                 <header className="App-header">
