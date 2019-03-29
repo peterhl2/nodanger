@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import QueryResults from "./QueryResults"
 import { Button, Popup } from 'semantic-ui-react'
+import Selectors from "./Selectors"
 
 const server_uri = 'http://localhost:8080'
 
@@ -13,10 +14,15 @@ class Query extends Component {
             start: "",
             dest: "",
             fields: "",
+            crimeType: "",
+            weekday: "",
+            latitude: "",
+            longtitude: "",
         }
         this.handleQuery = this.handleQuery.bind(this)
         this.handleChange = this.handleChange.bind(this)
         this.handleTableChange = this.handleTableChange.bind(this)
+        this.handleAdv = this.handleAdv.bind(this)
     }
 
     handleQuery(event) {
@@ -75,6 +81,23 @@ class Query extends Component {
       }
     }
 
+    handleAdv(event) {
+        const {id} = event.target
+        if (id === "adv1") {
+            const fetch_uri = `${server_uri}/getnumberofcrimes`
+            fetch(fetch_uri)
+              .then(response=> response.text())
+              .then(console.log)
+              .catch(console.err);
+        } else if (id === "adv2") {
+            const fetch_uri = `${server_uri}/getuserinfo`
+            fetch(fetch_uri)
+              .then(response=> response.text())
+              .then(console.log)
+              .catch(console.err);
+        }
+    }
+
     handleChange(event) {
         const {name, value} = event.target
         this.setState({[name]: [value]})
@@ -114,6 +137,7 @@ class Query extends Component {
                          placeholder="Argument Fields"
                          value={this.state.fields}
                          onChange={this.handleChange}/>
+                         <Selectors handleChange={this.handleChange} crimeType={this.state.crimeType} weekday={this.state.weekday} latitude={this.state.latitude} longtitude={this.state.longtitiude}/>
                 </div>
 
                 {/*Full Queries*/}
@@ -154,6 +178,16 @@ class Query extends Component {
                   <Popup trigger={<button onClick={this.handleTableChange} id="update" className="ui icon btn btn-success" style={{"margin": "10px"}}>Update</button>}
                          position="bottom center"
                          content="fields: /id/cols" />
+                </div>
+                {/*Advanced Queries*/}
+                <div className="row">
+                  <Popup trigger={<button onClick={this.handleAdv} id="adv1" className="ui icon btn btn-info" style={{"margin": "10px"}}>Adv 1</button>}
+                         position="bottom center"
+                         content="fields: /id/cols" />
+                  <Popup trigger={<button onClick={this.handleAdv} id="adv2" className="ui icon btn btn-info" style={{"margin": "10px"}}>Adv 2</button>}
+                         position="bottom center"
+                         content="fields: /id/cols" />
+
                 </div>
 
                 <QueryResults queryData={this.state.queryData}/>
