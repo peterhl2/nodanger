@@ -31,8 +31,10 @@ class Map extends Component {
     mapClick(key, childProps) {
         if (this.state.pickStart) {
             this.setState({pickStart: false, start: childProps, startIdx: key})
+            this.props.setStartDest(childProps, this.state.dest)
         } else {
             this.setState({pickStart: true, dest: childProps, destIdx: key})
+            this.props.setStartDest(this.state.start, childProps)
         }
     }
 

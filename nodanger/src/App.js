@@ -4,7 +4,7 @@ import './App.css'
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'semantic-ui-css/semantic.min.css'
-
+import { Popup } from 'semantic-ui-react'
 import User from "./components/User"
 import Query from "./components/Query"
 import Map from "./components/Map"
@@ -20,6 +20,27 @@ class App extends Component {
             dest: {"lat":"40.12", "lng":"-88.21"},
         }
         this.logIn = this.logIn.bind(this)
+        this.sendData = this.sendData.bind(this)
+        this.setStartDest = this.setStartDest.bind(this)
+    }
+
+    sendData() {
+        const fetch_uri = `${server_uri}/senddata`
+        const data = {
+            start: this.state.start,
+            dest: this.state.dest
+        }
+        fetch(fetch_uri, {
+            method: 'POST',
+            body: JSON.stringify(data)
+        })
+          .then(response=> response.json())
+          .then(console.log)
+          .catch(console.err)
+    }
+
+    setStartDest(start, dest) {
+        this.setState({start: start, dest: dest})
     }
 
     getRequest() {
@@ -30,11 +51,11 @@ class App extends Component {
         .catch(console.err);
     }
 
-    postRequest() {
+    postRequest(obj) {
       const fetch_uri = `${server_uri}/senddata`
       fetch(fetch_uri, {
           method: 'POST',
-          body: JSON.stringify({key: 5})
+          body: JSON.stringify(obj)
       })
         .then(response=> response.json())
         .then(console.log)
@@ -79,10 +100,15 @@ class App extends Component {
 
                     {page}
 
+                    <Popup trigger={<button onClick={this.sendData} id="send" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Send</button>}
+                           position="bottom center"
+                           content="Send the Start/Dest location" />
+
                     <Map    start={this.state.start}
                             dest={this.state.dest}
                             center={{lat:40.1000000, lng:-88.2220708}}
                             zoom={14.5}
+                            setStartDest={this.setStartDest}
                             crimes={[{"lat":"40.1105883", "lng":"-88.2220708"}, {"lat":"40.110", "lng":"-88.22"}]}/>
                 </header>
             </div>
