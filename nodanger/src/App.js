@@ -22,14 +22,6 @@ class App extends Component {
         this.logIn = this.logIn.bind(this)
     }
 
-    // componentDidMount() {
-    //   const fetch_uri = `${server_uri}/getdata`
-    //   fetch(fetch_uri)
-    //     .then(response=> response.json())
-    //     .then(console.log)
-    //     .catch(console.err);
-    // }
-
     getRequest() {
       const fetch_uri = `${server_uri}/getdata`
       fetch(fetch_uri)
@@ -89,6 +81,8 @@ class App extends Component {
 
                     <Map    start={this.state.start}
                             dest={this.state.dest}
+                            center={{lat:40.1000000, lng:-88.2220708}}
+                            zoom={14.5}
                             crimes={[{"lat":"40.1105883", "lng":"-88.2220708"}, {"lat":"40.110", "lng":"-88.22"}]}/>
                 </header>
             </div>

@@ -1,6 +1,6 @@
 import React, { Component } from "react"
 import QueryResults from "./QueryResults"
-import { Button, Popup } from 'semantic-ui-react'
+import { Popup } from 'semantic-ui-react'
 import Selectors from "./Selectors"
 
 const server_uri = 'http://localhost:8080'
