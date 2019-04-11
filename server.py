@@ -22,7 +22,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
     #used to store parameters for queries requests
     insertparams = []
     deleteparams = []
-    updateparams = []
+    updateconditions = ""
     params = ""
     route = ""
 
@@ -57,7 +57,9 @@ class RequestHandler(SimpleHTTPRequestHandler):
             '/getcrimebytype': self.get_crimebytype,
             '/insert': self.insert,
             '/delete': self.delete,
-            '/update': self.update
+            '/update': self.update,
+            '/getnumberofcrimes': self.getNumberOfCrimes,
+            '/getuserinfo': self.getuserinfo
         }
 
         SimpleHTTPRequestHandler.__init__(
@@ -99,11 +101,11 @@ class RequestHandler(SimpleHTTPRequestHandler):
                     # print(self.route_mapping[self.route])
                     # print(self.get_crimebytype)
                     # print(route)
-                    # if len(route_splt) == 3:
-                    #     self.param = route_splt[2].replace("%20", " ")
-                    # elif len(route_splt) > 3:
-                    #     self.param = route_splt[2].replace("%20", " ")
-                    #     self.conditions
+                    if len(route_splt) == 3:
+                        self.param = route_splt[2].replace("%20", " ")
+                    elif len(route_splt) > 3:
+                        self.param = route_splt[2].replace("%20", " ")
+                        self.updateconditions = route_splt[3].replace("%20", " ")
                         # print(self.param)
                     api_fn = self.route_mapping["/"+route_splt[1]]
                     return api_fn()
@@ -249,12 +251,55 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-type','application/json')
         self.end_headers()
         print("\n\n\nGOT THERE")
-        print(self.param)
-        cur.execute("INSERT INTO crimedata (id) VALUES (%s)", [self.param])
-        self.wfile.write(json.dumps("INSERTED").encode('utf-8'))
+        print(self.param, self.updateconditions)
+        cur.execute("UPDATE crimedata SET crime_type=%s WHERE id=%s", [self.updateconditions, self.param])
+        self.wfile.write(json.dumps("UPDATED").encode('utf-8'))
         return
 
-        "UPDATE Customers SET ContactName='Juan' WHERE id = '9000'"
+    def getNumberOfCrimes(self):
+        """
+            route: getNumberOfCrimes
+            returns: crime types and their counts in a 1 mile radius of user's Location
+            uses: used for advanced function of calculating danger ratings for locations
+            called from App.js (componentDidMount)
+        """
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+        print("\n\n\nGOT THERE")
+        #replace 40 with users current Location
+        cur.execute("""
+                    SELECT crime_type, COUNT(*)
+                    FROM crimedata WHERE latitude < 40+(3/69) AND latitude > 40+(1/69)
+                    GROUP BY crime_type
+                    """)
+        crimes = cur.fetchall()
+        self.wfile.write(json.dumps(crimes).encode('utf-8'))
+        return
+
+    def getuserinfo(self):
+        """
+            route: getuserinfo
+            returns: gets historical crime data of crimes that happened in urbana at the time of user login
+            uses: advanced function to show only the crimes that occured at that moment in the past on
+            google maps
+            called from App.js (componentDidMount)
+        """
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+        print("\n\n\nGOT THERE")
+        cur.execute("""
+                    SELECT *
+                    FROM crimedata
+                    WHERE id = ANY (
+                    SELECT c.id
+                    FROM crimedata c, logins l, users u
+                    WHERE l.username = "peter" and c.weekday = l.weekday and l.hour = c.hour)
+                    """)
+        crimes = cur.fetchall()
+        self.wfile.write(json.dumps(crimes).encode('utf-8'))
+        return
 
     def send_data(self, data):
         """
