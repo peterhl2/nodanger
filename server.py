@@ -6,6 +6,7 @@ import subprocess
 import argparse
 import json
 import MySQLdb
+import queries
 
 PORT_NUMBER = 8080
 index_dir = 'nodanger/build'
@@ -25,6 +26,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
     updateconditions = ""
     params = ""
     route = ""
+    # intialize database object for access data
+    crimeDB = queries.CrimeDB()
 
     def parse_route(routeMap):
         print(routeMap)
@@ -37,11 +40,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
         if len(route_splt) > 2:
             param = route_splt[2]
         return route
-
-    def getCrimeTypes():
-        cur.execute("SELECT DISTINCT crime_type FROM crimedata")
-        crime_types = cur.fetchall()
-        return crime_types
 
     def __init__(self, request, client_address, server):
         # stupid cross-platform way to change directory to nodanger/src/build
@@ -96,11 +94,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
                     route_splt = routeMap.split("/")
 
                     self.route = "/"+route_splt[1]
-                    # print(self.route)
-                    # print("route is:")
-                    # print(self.route_mapping[self.route])
-                    # print(self.get_crimebytype)
-                    # print(route)
+
                     if len(route_splt) == 3:
                         self.param = route_splt[2].replace("%20", " ")
                     elif len(route_splt) > 3:
@@ -109,14 +103,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
                         # print(self.param)
                     api_fn = self.route_mapping["/"+route_splt[1]]
                     return api_fn()
-
-
-
-                # print("\n" + self.param)
-                # print("HELLO")
-
-                # api_fn = self.route_mapping[self.route]
-                # return api_fn()
 
             except:
                 print('no api fn found for %s' % self.route)
@@ -163,7 +149,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        # data = queries.getCrimeByType()
         self.wfile.write(json.dumps("HELLO").encode('utf-8'))
         return
 
@@ -176,8 +161,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        cur.execute("SELECT DISTINCT crime_type FROM crimedata")
-        crime_types = cur.fetchall()
+        crime_types = self.crimeDB.getCrimeTypes()
         self.wfile.write(json.dumps(crime_types).encode('utf-8'))
         return
 
@@ -190,8 +174,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        cur.execute("SELECT * FROM crimedata WHERE id=%s", [self.param])
-        crime = cur.fetchall()
+        crime = self.crimeDB.getCrimeById(self.param)
         self.wfile.write(json.dumps(crime).encode('utf-8'))
         return
 
@@ -204,10 +187,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        print(self.param)
-        cur.execute("SELECT * FROM crimedata WHERE crime_type=%s", [self.param])
-        crimes = cur.fetchall()
+        crimes = self.crimeDB.getCrimeByType(self.param)
         self.wfile.write(json.dumps(crimes).encode('utf-8'))
         return
 
@@ -220,10 +200,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        print(self.param)
-        cur.execute("INSERT INTO crimedata (id) VALUES (%s)", [self.param])
-        self.wfile.write(json.dumps("INSERTED").encode('utf-8'))
+        crimes = self.crimeDB.insert(self.param)
+        self.wfile.write(json.dumps("INSERT SUCCESSFUL").encode('utf-8'))
         return
 
     def delete(self):
@@ -235,10 +213,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        print(self.param)
-        cur.execute("DELETE FROM crimedata WHERE id=%s", [self.param])
-        self.wfile.write(json.dumps("DELETED").encode('utf-8'))
+        crimes = self.crimeDB.delete(self.param)
+        self.wfile.write(json.dumps("DELETED SUCCESSFUL").encode('utf-8'))
         return
 
     def update(self):
@@ -250,10 +226,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        print(self.param, self.updateconditions)
-        cur.execute("UPDATE crimedata SET crime_type=%s WHERE id=%s", [self.updateconditions, self.param])
-        self.wfile.write(json.dumps("UPDATED").encode('utf-8'))
+        crimes = self.crimeDB.update(self.updateconditions, self.param)
+        self.wfile.write(json.dumps("UPDATED SUCCESSFUL").encode('utf-8'))
         return
 
     def getNumberOfCrimes(self):
@@ -266,14 +240,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        #replace 40 with users current Location
-        cur.execute("""
-                    SELECT crime_type, COUNT(*)
-                    FROM crimedata WHERE latitude < 40+(3/69) AND latitude > 40+(1/69)
-                    GROUP BY crime_type
-                    """)
-        crimes = cur.fetchall()
+        crimes = self.crimeDB.getCrimeAtLocation(40, 40)
         self.wfile.write(json.dumps(crimes).encode('utf-8'))
         return
 
@@ -288,16 +255,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        cur.execute("""
-                    SELECT *
-                    FROM crimedata
-                    WHERE id = ANY (
-                    SELECT c.id
-                    FROM crimedata c, logins l, users u
-                    WHERE l.username = "peter" and c.weekday = l.weekday and l.hour = c.hour)
-                    """)
-        crimes = cur.fetchall()
+        crimes = self.crimeDB.getCrimeAtTimeOfLogin("peter")
         self.wfile.write(json.dumps(crimes).encode('utf-8'))
         return
 
