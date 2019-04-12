@@ -16,31 +16,33 @@ class App extends Component {
         super()
         this.state = {
             loggedIn: false,
-            start: {"lat":"40.1", "lng":"-88.24"},
-            dest: {"lat":"40.12", "lng":"-88.21"},
+            startIdx: 0,
+            destIdx: 1,
         }
         this.logIn = this.logIn.bind(this)
-        this.sendData = this.sendData.bind(this)
+        this.sendsafe = this.sendsafe.bind(this)
         this.setStartDest = this.setStartDest.bind(this)
     }
 
-    sendData() {
-        const fetch_uri = `${server_uri}/senddata`
+    sendsafe() {
+        const fetch_uri = `${server_uri}/sendsafe`
         const data = {
-            start: this.state.start,
-            dest: this.state.dest
+            start: this.state.startIdx,
+            dest: this.state.destIdx
         }
+
         fetch(fetch_uri, {
             method: 'POST',
             body: JSON.stringify(data)
         })
-          .then(response=> response.json())
+          .then(response => response.json())
           .then(console.log)
           .catch(console.err)
+
     }
 
     setStartDest(start, dest) {
-        this.setState({start: start, dest: dest})
+        this.setState({startIdx: start, destIdx: dest})
     }
 
     getRequest() {
@@ -100,7 +102,7 @@ class App extends Component {
 
                     {page}
 
-                    <Popup trigger={<button onClick={this.sendData} id="send" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Send</button>}
+                    <Popup trigger={<button onClick={this.sendsafe} id="send" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Send</button>}
                            position="bottom center"
                            content="Send the Start/Dest location" />
 

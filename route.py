@@ -4,14 +4,16 @@ from road_network import intersections
 from road_network import coordinates
 import math
 
-
+# DB instance
 crimeDB = queries.CrimeDB()
 
-def getDangerRatings():
+# calculates dangerRatings for each location(vertex)
+def getDangerRatings(weekday, hour):
     ratings = {}
     for i in range(0, 132):
         coord = coordinates[i]
-        crime_types = crimeDB.getCrimeAtTimeAndLocation("", "", coord[0], coord[1])
+        # query to get crimes at each location and time
+        crime_types = crimeDB.getCrimeAtTimeAndLocation(weekday, hour, coord[0], coord[1])
         dangerrating = 0
         count = 0
         for crime in crime_types:
@@ -23,18 +25,24 @@ def getDangerRatings():
             ratings[i] = 0
     return ratings
 
-def getSafestRoute(start, dest):
-    dangerRatings = getDangerRatings()
+# returns returns parents of each vertex in the SPT
+# uses minDanger function to find the next vertex to visit in the intersections
+def getSafestRoute(weekday, hour, start, dest):
+    # dictionary that contains danger ratings for each vertex
+    dangerRatings = getDangerRatings(weekday, hour)
+    # print(dangerRatings)
+
     parent = [math.inf] * (11*12)
     danger = [math.inf] * (11*12)
     danger[start] = 0
     visited = [start]
 
+    # run until we have visited dest
     while dest not in visited:
 
         # Pick the minimum distance vertex from
         # the set of vertices not yet processed.
-        # u is always equal to src in first iteration
+        # v is parent of n, n is next vertex to visit
         v, n, minD = minDanger(danger, visited, dangerRatings)
 
         # Put the minimum distance vertex in the
@@ -42,9 +50,11 @@ def getSafestRoute(start, dest):
         visited.append(n)
         parent[n] = v
         danger[n] = minD
+
     return parent
 
-
+# helper function used by getSafestRoute to get next vertex with the smallest
+# danger
 def minDanger(danger, visited, dangerRatings):
     adjacent = []
     minDanger = math.inf
@@ -60,8 +70,10 @@ def minDanger(danger, visited, dangerRatings):
                     parent = v
     return parent, minIndex, minDanger
 
-def safestpath(start, dest):
-    parents = getSafestRoute(start, dest)
+# calls getSafestRoute to get parents in SPT and retreives the shortest path
+# from start to dest
+def safestpath(weekday, hour, start, dest):
+    parents = getSafestRoute(weekday, hour, start, dest)
     path = [dest]
     child = dest
     while child != start:
@@ -71,4 +83,5 @@ def safestpath(start, dest):
     path.reverse()
     return path
 
-print(safestpath(25, 131))
+# test
+# print(safestpath("Friday", 20, 79, 0))

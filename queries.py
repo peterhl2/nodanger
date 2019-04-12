@@ -49,18 +49,20 @@ class CrimeDB:
         crimes = self.cur.fetchall()
         return crimes
 
+    # returns crimes types and counts at location and time
+    # used by safestpath feature
     def getCrimeAtTimeAndLocation(self, weekday, hour, lat, lng):
         # change peter to username
         self.cur.execute("""
                     SELECT crime_type, COUNT(*)
-                    FROM crimedata WHERE latitude < %s+0.00159 AND latitude > %s-0.00159
+                    FROM crimedata
+                    WHERE latitude < %s+0.00159 AND latitude > %s-0.00159
                     AND longitude < %s+0.00159 AND longitude > %s-0.00159
+                    AND weekDay = %s AND hour = %s
                     GROUP BY crime_type
-                    """,[lat, lat, lng, lng])
+                    """,[lat, lat, lng, lng, weekday, hour])
         crimes = self.cur.fetchall()
         return crimes
-
-        # AND weekDay = %s AND hour = %s
 
     def getCrimeByType(self, crime_type):
         self.cur.execute("SELECT * FROM crimedata WHERE crime_type=%s", [crime_type])

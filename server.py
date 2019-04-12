@@ -7,6 +7,7 @@ import argparse
 import json
 import MySQLdb
 import queries
+from route import safestpath
 
 PORT_NUMBER = 8080
 index_dir = 'nodanger/build'
@@ -50,6 +51,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
             '/': self.get_homepage,
             '/getdata': self.get_data,
             '/senddata': self.send_data,
+            '/sendsafe': self.send_safestPath,
             '/getcrimetypes': self.get_crimetypes,
             '/getcrimebyid': self.get_crimebyid,
             '/getcrimebytype': self.get_crimebytype,
@@ -259,21 +261,38 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(crimes).encode('utf-8'))
         return
 
+    def send_safestPath(self, data):
+        """
+            route: senddata
+            returns: success message that we received data
+            called from App.js (componentDidMount)
+        """
+        # self.send_response(201)
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+
+        print("\n\nsend_safestPath")
+        print(data['start'])
+        route = safestpath("Friday", 20, int(data['start']), int(data['dest']))
+        print(route)
+        self.wfile.write(json.dumps(route).encode('utf-8'))
+        return
+
     def send_data(self, data):
         """
             route: senddata
             returns: success message that we received data
             called from App.js (componentDidMount)
         """
-        self.send_response(201)
-        print("\n\n\n\n")
-        print(data)
-        if(data['type'] == 'crimes'):
-            print("BYE")
-            response = queries.getCrimeTypes()
+        # self.send_response(201)
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
 
-        print(response)
-        self.wfile.write(json.dumps(response).encode('utf-8'))
+        print(data)
+        self.wfile.write(json.dumps(False).encode('utf-8'))
+
         return
 
 def start_server():

@@ -16,14 +16,17 @@ class User extends Component {
         }
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.checkUserExists = this.checkUserExists.bind(this)
+        this.createUser = this.createUser.bind(this)
     }
 
     checkUserExists() {
       const fetch_uri = `${server_uri}/senddata`
       let exists = false
+      const user = {username: this.state.username}
       fetch(fetch_uri, {
           method: 'POST',
-          body: JSON.stringify({"username": this.state.username})
+          body: JSON.stringify(user)
       })
         .then(response=>response.json())
         .then(data => {
