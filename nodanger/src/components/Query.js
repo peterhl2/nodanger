@@ -187,7 +187,18 @@ class Query extends Component {
                   <Popup trigger={<button onClick={this.handleAdv} id="adv2" className="ui icon btn btn-info" style={{"margin": "10px"}}>Adv 2</button>}
                          position="bottom center"
                          content="fields: /id/cols" />
-
+                </div>
+                {/*Advanced Features*/}
+                <div className="row">
+                    <Popup trigger={<button onClick={this.props.sendsafe} id="send" className="ui icon btn btn-warning" style={{"margin": "10px"}}>Path</button>}
+                           position="bottom center"
+                           content="Send the Start/Dest location" />
+                    <Popup trigger={<button onClick={this.props.groupDanger} id="send" className="ui icon btn btn-warning" style={{"margin": "10px"}}>Groups</button>}
+                           position="bottom center"
+                           content="Group most dangerous areas" />
+                    <Popup trigger={<button onClick={this.props.clearColors} id="send" className="ui icon btn btn-warning" style={{"margin": "10px"}}>Reset</button>}
+                           position="bottom center"
+                           content="Clear map colors" />
                 </div>
 
                 <QueryResults queryData={this.state.queryData}/>
