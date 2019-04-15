@@ -105,7 +105,6 @@ class App extends Component {
                     </p>
 
                     {page}
-                    <button onClick={() => console.log(this.state.pathIdx)} className="ui icon btn btn-danger">Log</>
 
                     <Popup trigger={<button onClick={this.sendsafe} id="send" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Send</button>}
                            position="bottom center"
@@ -113,6 +112,7 @@ class App extends Component {
 
                     <Map    start={this.state.start}
                             dest={this.state.dest}
+                            pathIdx={this.state.pathIdx}
                             center={{lat:40.1000000, lng:-88.2220708}}
                             zoom={14.5}
                             setStartDest={this.setStartDest}

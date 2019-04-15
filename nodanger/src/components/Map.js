@@ -67,6 +67,7 @@ class Map extends Component {
                                 text={""}
                                 startIdx={this.state.startIdx}
                                 destIdx={this.state.destIdx}
+                                pathIdx={this.props.pathIdx}
                             />)
             }
         }
