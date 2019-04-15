@@ -18,6 +18,7 @@ class App extends Component {
             loggedIn: false,
             startIdx: 0,
             destIdx: 1,
+            pathIdx: [],
         }
         this.logIn = this.logIn.bind(this)
         this.sendsafe = this.sendsafe.bind(this)
@@ -36,6 +37,9 @@ class App extends Component {
             body: JSON.stringify(data)
         })
           .then(response => response.json())
+          .then(data => {
+              this.setState({pathIdx: data})
+          })
           .then(console.log)
           .catch(console.err)
 
@@ -101,6 +105,7 @@ class App extends Component {
                     </p>
 
                     {page}
+                    <button onClick={() => console.log(this.state.pathIdx)} className="ui icon btn btn-danger">Log</>
 
                     <Popup trigger={<button onClick={this.sendsafe} id="send" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Send</button>}
                            position="bottom center"
