@@ -19,9 +19,13 @@ class App extends Component {
             startIdx: 0,
             destIdx: 1,
             pathIdx: [],
+            groupDanger: [],
+            crimes: [],
         }
         this.logIn = this.logIn.bind(this)
         this.sendsafe = this.sendsafe.bind(this)
+        this.groupDanger = this.groupDanger.bind(this)
+        this.clearColors = this.clearColors.bind(this)
         this.setStartDest = this.setStartDest.bind(this)
     }
 
@@ -42,7 +46,24 @@ class App extends Component {
           })
           .then(console.log)
           .catch(console.err)
+    }
 
+    groupDanger() {
+        const fetch_uri = `${server_uri}/groupDanger`
+        fetch(fetch_uri, {
+            method: 'POST',
+            body: JSON.stringify({})
+        })
+          .then(response => response.json())
+          .then(data => {
+              this.setState({groupDanger: data})
+          })
+          .then(console.log)
+          .catch(console.err)
+    }
+
+    clearColors() {
+        this.setState({pathIdx: [], groupDanger: [], crimes: []})
     }
 
     setStartDest(start, dest) {
@@ -93,7 +114,7 @@ class App extends Component {
         if (!this.state.loggedIn)
             page = <User logIn={this.logIn}/>
         else {
-            page = <Query />
+            page = <Query sendsafe={this.sendsafe} groupDanger={this.groupDanger}/>
         }
 
         return (
@@ -106,17 +127,14 @@ class App extends Component {
 
                     {page}
 
-                    <Popup trigger={<button onClick={this.sendsafe} id="send" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Send</button>}
-                           position="bottom center"
-                           content="Send the Start/Dest location" />
-
                     <Map    start={this.state.start}
                             dest={this.state.dest}
                             pathIdx={this.state.pathIdx}
+                            groupDanger={this.state.groupDanger}
                             center={{lat:40.1000000, lng:-88.2220708}}
                             zoom={14.5}
                             setStartDest={this.setStartDest}
-                            crimes={[{"lat":"40.1105883", "lng":"-88.2220708"}, {"lat":"40.110", "lng":"-88.22"}]}/>
+                            crimes={this.state.crimes}/>
                 </header>
             </div>
         );

@@ -18,6 +18,16 @@ class Location extends Component {
         return false
     }
 
+    checkGroup(idx) {
+        let group = this.props.groupDanger
+        if (group.length === 0) return false
+        for (let i=0; i<group.length; i++) {
+            if (group[i] === idx)
+                return true
+        }
+        return false
+    }
+
     render() {
         let style
         if (this.props.idx == this.props.startIdx) {
@@ -26,6 +36,8 @@ class Location extends Component {
             style = {backgroundColor:"green"}
         } else if (this.checkPath(this.props.idx)) {
             style = {backgroundColor:"DeepSkyBlue", opacity: "1"}
+        } else if (this.checkGroup(this.props.idx)) {
+            style = {backgroundColor:"DeepSkyBlue", opacity: "1", height:"40px", width:"40px"}
         }
         return (
             <div lat={this.props.lat}
