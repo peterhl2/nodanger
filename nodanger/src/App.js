@@ -105,7 +105,7 @@ class App extends Component {
                     </p>
 
                     {page}
-                    <button onClick={() => console.log(this.state.pathIdx)} className="ui icon btn btn-danger">Log</>
+                    <button onClick={() => console.log(this.state.pathIdx)} className="ui icon btn btn-danger">Log</button>
 
                     <Popup trigger={<button onClick={this.sendsafe} id="send" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Send</button>}
                            position="bottom center"
