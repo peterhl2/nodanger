@@ -57,17 +57,16 @@ class CrimeDB:
         crime = self.cur.fetchall()
         return crime
 
-    def getCrimeAtTimeOfLogin(self, username):
+    def getCrimeAtTimeOfLogin(self):
         # change peter to username
         self.cur.execute("""
-                    SELECT crime_type, COUNT(*)
+                    SELECT latitude, longitude, crime_type
                     FROM crimedata
                     WHERE id = ANY (
                     SELECT c.id
                     FROM crimedata c, logins l, users u
-                    WHERE l.username = "peter" and c.weekday = l.weekday and l.hour = c.hour)
-                    GROUP BY crime_type
-                    """)
+                    WHERE l.username = %s and c.weekDay = l.weekday and l.hour = c.hour)
+                    """, [user])
         crimes = self.cur.fetchall()
         return crimes
 
@@ -103,5 +102,5 @@ class CrimeDB:
 
 #test
 # crimeDB = CrimeDB()
-# data = {'weekday':"6", "day":"23", "month":"2", "year":"2019", "hour":"4"}
-# crimeDB.insert_login(data)
+# user = "peter"
+# print(crimeDB.getCrimeAtTimeOfLogin())
