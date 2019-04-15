@@ -30,9 +30,9 @@ class Location extends Component {
 
     render() {
         let style
-        if (this.props.idx == this.props.startIdx) {
+        if (this.props.idx === parseInt(this.props.startIdx)) {
             style = {backgroundColor:"red"}
-        } else if (this.props.idx == this.props.destIdx) {
+        } else if (this.props.idx === parseInt(this.props.destIdx)) {
             style = {backgroundColor:"green"}
         } else if (this.checkPath(this.props.idx)) {
             style = {backgroundColor:"DeepSkyBlue", opacity: "1"}

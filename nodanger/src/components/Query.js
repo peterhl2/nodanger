@@ -2,6 +2,7 @@ import React, { Component } from "react"
 import QueryResults from "./QueryResults"
 import { Popup } from 'semantic-ui-react'
 import Selectors from "./Selectors"
+import Date from "./Date"
 
 const server_uri = 'http://localhost:8080'
 
@@ -11,18 +12,20 @@ class Query extends Component {
         this.state = {
             query: "",
             queryData: [],
-            start: "",
-            dest: "",
             fields: "",
             crimeType: "",
             weekday: "",
             latitude: "",
             longtitude: "",
+            startDate: "",
+            endDate: "",
+            startDateObj: {},
+            endDateObj: {},
         }
         this.handleQuery = this.handleQuery.bind(this)
         this.handleChange = this.handleChange.bind(this)
+        this.handleDateChange = this.handleDateChange.bind(this)
         this.handleTableChange = this.handleTableChange.bind(this)
-        this.handleAdv = this.handleAdv.bind(this)
     }
 
     handleQuery(event) {
@@ -81,26 +84,36 @@ class Query extends Component {
       }
     }
 
-    handleAdv(event) {
-        const {id} = event.target
-        if (id === "adv1") {
-            const fetch_uri = `${server_uri}/getnumberofcrimes`
-            fetch(fetch_uri)
-              .then(response=> response.text())
-              .then(console.log)
-              .catch(console.err);
-        } else if (id === "adv2") {
-            const fetch_uri = `${server_uri}/getuserinfo`
-            fetch(fetch_uri)
-              .then(response=> response.text())
-              .then(console.log)
-              .catch(console.err);
-        }
-    }
-
     handleChange(event) {
         const {name, value} = event.target
         this.setState({[name]: [value]})
+    }
+
+    handleDateChange(event) {
+        this.handleChange(event)
+        const {name, value} = event.target
+        let date = value.split("/")
+        if (date.length != 3)
+            return
+        if (name==="startDate") {
+            this.setState({
+                startDateObj: {
+                    month: parseInt(date[0]),
+                    day: parseInt(date[1]),
+                    year: parseInt(date[2])
+                }
+            })
+        } else {
+            this.setState({
+                endDateObj: {
+                    month: parseInt(date[0]),
+                    day: parseInt(date[1]),
+                    year: parseInt(date[2])
+                }
+            })
+        }
+        console.log(this.state.startDateObj)
+        console.log(this.state.endDateObj)
     }
 
     render() {
@@ -116,28 +129,18 @@ class Query extends Component {
                 </div>
                 <div className="row">
                     <input className="col-10"
-                          name="start"
-                          type="text"
-                          placeholder="Start Location"
-                          value={this.state.start}
-                          onChange={this.handleChange}/>
-                </div>
-                <div className="row">
-                    <input className="col-10"
-                         name="dest"
-                         type="text"
-                         placeholder="Destination"
-                         value={this.state.dest}
-                         onChange={this.handleChange}/>
-                </div>
-                <div className="row">
-                    <input className="col-10"
                          name="fields"
                          type="text"
                          placeholder="Argument Fields"
                          value={this.state.fields}
                          onChange={this.handleChange}/>
                          <Selectors handleChange={this.handleChange} crimeType={this.state.crimeType} weekday={this.state.weekday} latitude={this.state.latitude} longtitude={this.state.longtitiude}/>
+                </div>
+                <div className="row">
+                    <Date startDate={this.state.startDate}
+                          endDate={this.state.endDate}
+                          handleDateChange={this.handleDateChange}
+                          />
                 </div>
 
                 {/*Full Queries*/}
@@ -176,15 +179,6 @@ class Query extends Component {
                          position="bottom center"
                          content="fields: /id/" />
                   <Popup trigger={<button onClick={this.handleTableChange} id="update" className="ui icon btn btn-success" style={{"margin": "10px"}}>Update</button>}
-                         position="bottom center"
-                         content="fields: /id/cols" />
-                </div>
-                {/*Advanced Queries*/}
-                <div className="row">
-                  <Popup trigger={<button onClick={this.handleAdv} id="adv1" className="ui icon btn btn-info" style={{"margin": "10px"}}>Adv 1</button>}
-                         position="bottom center"
-                         content="fields: /id/cols" />
-                  <Popup trigger={<button onClick={this.handleAdv} id="adv2" className="ui icon btn btn-info" style={{"margin": "10px"}}>Adv 2</button>}
                          position="bottom center"
                          content="fields: /id/cols" />
                 </div>
