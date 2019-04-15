@@ -7,6 +7,7 @@ class Location extends Component {
         super()
         this.checkPath = this.checkPath.bind(this)
     }
+
     checkPath(idx) {
         let path = this.props.pathIdx
         if (path.length === 0) return false
@@ -23,8 +24,8 @@ class Location extends Component {
             style = {backgroundColor:"red"}
         } else if (this.props.idx == this.props.destIdx) {
             style = {backgroundColor:"green"}
-        } else if (checkPath(this.props.idx)) {
-            style = {backgroundColor:"yellow"}
+        } else if (this.checkPath(this.props.idx)) {
+            style = {backgroundColor:"DeepSkyBlue", opacity: "1"}
         }
         return (
             <div lat={this.props.lat}
