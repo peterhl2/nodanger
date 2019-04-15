@@ -90,13 +90,15 @@ class CrimeDB:
         crimeOfType = self.cur.fetchall()
         return crimeOfType
 
-    def getCrimeAtLocation(self, lat, long):
+    def getCrimeAtLocation(self, lat, lng):
         # change 40 to lat also add long
         self.cur.execute("""
                     SELECT crime_type, COUNT(*)
-                    FROM crimedata WHERE latitude < 40+(3/69) AND latitude > 40+(1/69)
+                    FROM crimedata
+                    WHERE latitude < %s+0.00159 AND latitude > %s-0.00159
+                    AND longitude < %s+0.00159 AND longitude > %s-0.00159
                     GROUP BY crime_type
-                    """)
+                    """,[lat, lat, lng, lng])
         crimes = self.cur.fetchall()
         return crimes
 

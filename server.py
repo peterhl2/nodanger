@@ -8,6 +8,7 @@ import json
 import MySQLdb
 import queries
 from route import safestpath
+from dangerclusters import getDangerNodes
 
 PORT_NUMBER = 8080
 index_dir = 'nodanger/build'
@@ -48,6 +49,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
             '/getcrimetypes': self.get_crimetypes,
             '/getcrimebyid': self.get_crimebyid,
             '/getcrimebytype': self.get_crimebytype,
+            '/groupDanger': self.get_danger_clusters,
             '/insert': self.insert,
             '/delete': self.delete,
             '/update': self.update,
@@ -270,6 +272,23 @@ class RequestHandler(SimpleHTTPRequestHandler):
         route = safestpath("Friday", 20, int(data['start']), int(data['dest']))
         print(route)
         self.wfile.write(json.dumps(route).encode('utf-8'))
+        return
+
+    def get_danger_clusters(self, data):
+        """
+            route: senddata
+            returns: success message that we received data
+            called from App.js (componentDidMount)
+        """
+        # self.send_response(201)
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+
+        print(queries.user)
+        dangerclusters = getDangerNodes(queries.user)
+
+        self.wfile.write(json.dumps(dangerclusters).encode('utf-8'))
         return
 
     def user_exists(self, data):

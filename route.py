@@ -70,7 +70,6 @@ def minDanger(danger, visited, dangerRatings):
                     parent = v
     return parent, minIndex, minDanger
 
-day = {"1":"Monday" , "2":"Tuesday", "3":"Wednesday", "4":"Thursday", "5": "Friday", "6": "Saturday", "7": "Sunday"}
 # calls getSafestRoute to get parents in SPT and retreives the shortest path
 # from start to dest
 def safestpath(weekday, hour, start, dest):
