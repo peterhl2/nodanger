@@ -29,18 +29,9 @@ class RequestHandler(SimpleHTTPRequestHandler):
     route = ""
     # intialize database object for access data
     crimeDB = queries.CrimeDB()
-
-    def parse_route(routeMap):
-        print(routeMap)
-        if routeMap == "/":
-            return routeMap
-        route_splt = routeMap.split("/")
-        print(route_splt)
-        route = "/"+route_splt[1]
-        print(route)
-        if len(route_splt) > 2:
-            param = route_splt[2]
-        return route
+    weekday = ""
+    hour = ""
+    user = ""
 
     def __init__(self, request, client_address, server):
         # stupid cross-platform way to change directory to nodanger/src/build
@@ -50,7 +41,9 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.route_mapping = {
             '/': self.get_homepage,
             '/getdata': self.get_data,
-            '/senddata': self.send_data,
+            '/sendlogin': self.insert_login,
+            '/senduserexists': self.user_exists,
+            '/sendusersignup': self.user_signup,
             '/sendsafe': self.send_safestPath,
             '/getcrimetypes': self.get_crimetypes,
             '/getcrimebyid': self.get_crimebyid,
@@ -279,7 +272,27 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(route).encode('utf-8'))
         return
 
-    def send_data(self, data):
+    def user_exists(self, data):
+        """
+            route: senddata
+            returns: success message that we received data
+            called from App.js (componentDidMount)
+        """
+        exists = False
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+
+        # print(data)
+        # print(data['username'])
+        exists = self.crimeDB.checkUserExists(data['username'])
+        # print(self.weekday, self.hour)
+        # print(exists)
+        self.wfile.write(json.dumps(exists).encode('utf-8'))
+
+        return
+
+    def user_signup(self, data):
         """
             route: senddata
             returns: success message that we received data
@@ -291,7 +304,33 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
 
         print(data)
-        self.wfile.write(json.dumps(False).encode('utf-8'))
+        if not self.crimeDB.checkUserExists(data['username']):
+            self.crimeDB.insert_newuser(data['username'], data['password'])
+
+        queries.user = data['username']
+        print(queries.user)
+        self.wfile.write(json.dumps(True).encode('utf-8'))
+
+        return
+
+    def insert_login(self, data):
+        """
+            route: senddata
+            returns: success message that we received data
+            called from App.js (componentDidMount)
+        """
+        # self.send_response(201)
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+
+        # print(data)
+        # print(queries.user)
+        # call insert_login to insert login info into db
+        self.crimeDB.insert_login(data)
+        print("FINISHED insert login")
+        # print(self.weekday, self.hour)
+        self.wfile.write(json.dumps(True).encode('utf-8'))
 
         return
 

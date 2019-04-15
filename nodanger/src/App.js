@@ -66,7 +66,7 @@ class App extends Component {
 
     logIn(event) {
         let d = new Date()
-        const fetch_uri = `${server_uri}/senddata`
+        const fetch_uri = `${server_uri}/sendlogin`
         fetch(fetch_uri, {
             method: 'POST',
             body: JSON.stringify({

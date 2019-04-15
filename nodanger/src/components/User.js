@@ -21,7 +21,7 @@ class User extends Component {
     }
 
     checkUserExists() {
-      const fetch_uri = `${server_uri}/senddata`
+      const fetch_uri = `${server_uri}/senduserexists`
       let exists = false
       const user = {username: this.state.username}
       fetch(fetch_uri, {
@@ -37,7 +37,7 @@ class User extends Component {
     }
 
     createUser() {
-        const fetch_uri = `${server_uri}/senddata`
+        const fetch_uri = `${server_uri}/sendusersignup`
         const newUser = {
             username: this.state.username,
             password: this.state.password,
@@ -61,8 +61,8 @@ class User extends Component {
         // Set default tryAgain to not display
         this.setState({tryAgain: false})
         // Check database if user exists
-        // const inUse = this.checkUserExists()
-        const inUse = false
+        const inUse = this.checkUserExists()
+        //const inUse = false
 
         if (name === "signup") {
             if (!inUse) { // Doesn't exist, create user
