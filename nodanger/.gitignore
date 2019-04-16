@@ -8,8 +8,8 @@
 # testing
 /coverage
 
-# production
-/build
+# production -- keep this directory for deployment branch
+# /build
 
 # misc
 .DS_Store
