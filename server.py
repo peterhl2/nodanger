@@ -5,19 +5,27 @@ import os
 import subprocess
 import argparse
 import json
-# import MySQLdb
+import MySQLdb
 
-PORT_NUMBER = 8080
+# deployed on heroku
 if 'PORT' in os.environ:
     PORT_NUMBER = int(os.environ['PORT'])
+    db = MySQLdb.connect(host="us-cdbr-iron-east-02.cleardb.net",
+        user="b2f8d35aaf8c31",
+        passwd="ab22610f",
+        db="heroku_d9d316ecf97289a")
+
+
+else:
+    PORT_NUMBER = 8080
+    db = MySQLdb.connect(host="localhost",    # your host, usually localhost
+        user="root",         # your username
+        passwd="strangerdanger",  # your password
+        db="crime_schema")
 
 index_dir = 'nodanger/build'
-# mysql://b2f8d35aaf8c31:ab22610f@us-cdbr-iron-east-02.cleardb.net/heroku_d9d316ecf97289a?reconnect=true
+# mysql://:@/?reconnect=true
 # Establish connection to local database
-# db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-#                      user="root",         # your username
-#                      passwd="strangerdanger",  # your password
-#                      db="crime_schema")
 #
 # cur = db.cursor()
 
