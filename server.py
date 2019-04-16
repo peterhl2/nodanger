@@ -82,7 +82,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
         # runs if path matches file in build directory
         request_path = Path(os.path.join(self.build_directory, self.path[1:]))
-        print('route', request_path)
+        # print('route', request_path)
         if request_path.is_file():
             print('GET file %s' % self.path)
             self.send_response(200)
@@ -127,15 +127,9 @@ class RequestHandler(SimpleHTTPRequestHandler):
                 # api_fn = self.route_mapping[self.route]
                 # return api_fn()
 
-            except:
+            except Exception as e:
+                print('Exception', e)
                 print('no api fn found for %s' % self.route)
-                print('current working directory %s' % os.getcwd())
-                print('other stuff', os.listdir())
-                # print('bad request to {}'.format(self.path).encode('utf-8'))
-                # self.send_response(200)
-                # self.send_header('Content-type','text/html')
-                # self.end_headers()
-                # self.wfile.write('Bad url {}'.format(self.path).encode('utf-8'))
 
     def do_POST(self):
 
