@@ -8,6 +8,7 @@ import json
 import MySQLdb
 
 # deployed on heroku
+
 if 'PORT' in os.environ:
     PORT_NUMBER = int(os.environ['PORT'])
     db = MySQLdb.connect(host="us-cdbr-iron-east-02.cleardb.net",
@@ -80,6 +81,17 @@ class RequestHandler(SimpleHTTPRequestHandler):
         SimpleHTTPRequestHandler.end_headers(self)
 
     def do_GET(self):
+
+
+        # add reconnect logic with each new request
+        PORT_NUMBER = int(os.environ['PORT'])
+        db = MySQLdb.connect(host="us-cdbr-iron-east-02.cleardb.net",
+            user="b2f8d35aaf8c31",
+            passwd="ab22610f",
+            db="heroku_d9d316ecf97289a")
+        db.ping(True)
+        cur = db.cursor()
+
 
         # runs if path matches file in build directory
         request_path = Path(os.path.join(self.build_directory, self.path[1:]))
