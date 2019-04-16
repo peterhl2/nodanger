@@ -9,7 +9,7 @@ import User from "./components/User"
 import Query from "./components/Query"
 import Map from "./components/Map"
 
-const server_uri = 'http://localhost:8080'
+const server_uri = 'http://cs411-nodanger.herokuapp.com/';//'http://localhost:8080'
 
 class App extends Component {
     constructor() {
