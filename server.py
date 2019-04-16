@@ -124,6 +124,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
             except:
                 print('no api fn found for %s' % self.route)
+                print('current working directory %s' % os.getcwd())
                 # print('bad request to {}'.format(self.path).encode('utf-8'))
                 # self.send_response(200)
                 # self.send_header('Content-type','text/html')
