@@ -14,7 +14,7 @@ if 'PORT' in os.environ:
         user="b2f8d35aaf8c31",
         passwd="ab22610f",
         db="heroku_d9d316ecf97289a")
-
+    db.ping(reconnect=True)
 
 else:
     PORT_NUMBER = 8080
