@@ -8,9 +8,9 @@ import json
 # import MySQLdb
 
 PORT_NUMBER = 8080
-if os.environ['PORT'] is not None:
-    print('using heroku port number %d' % int(os.environ['PORT']))
+if 'PORT' in os.environ:
     PORT_NUMBER = int(os.environ['PORT'])
+
 index_dir = 'nodanger/build'
 # mysql://b2f8d35aaf8c31:ab22610f@us-cdbr-iron-east-02.cleardb.net/heroku_d9d316ecf97289a?reconnect=true
 # Establish connection to local database
@@ -66,7 +66,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
             '/getuserinfo': self.getuserinfo
         }
 
-        SimpleHTTPRequestHandler.__init__(self, request, client_address, server, directory=web_dir)
+        self.build_directory = web_dir
+        SimpleHTTPRequestHandler.__init__(self, request, client_address, server)
 
     def end_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -75,8 +76,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
 
         # runs if path matches file in build directory
-        request_path = Path(os.path.join(self.directory, self.path[1:]))
-        # print('route', request_path)
+        request_path = Path(os.path.join(self.build_directory, self.path[1:]))
+        print('route', request_path)
         if request_path.is_file():
             print('GET file %s' % self.path)
             self.send_response(200)
