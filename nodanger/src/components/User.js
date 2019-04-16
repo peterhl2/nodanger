@@ -4,7 +4,7 @@ import TryAgain from "./TryAgain"
 import 'bootstrap/dist/css/bootstrap.css'
 import "./User.css"
 
-const server_uri = 'http://localhost:8080'
+const server_uri = 'http://cs411-nodanger.herokuapp.com/';//'http://localhost:8080'
 
 class User extends Component {
     constructor() {
