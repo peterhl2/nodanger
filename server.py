@@ -66,8 +66,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
             '/getuserinfo': self.getuserinfo
         }
 
-        SimpleHTTPRequestHandler.__init__(
-            self, request, client_address, server, directory=web_dir)
+        SimpleHTTPRequestHandler.__init__(self, request, client_address, server, directory=web_dir)
 
     def end_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
