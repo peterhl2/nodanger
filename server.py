@@ -8,6 +8,9 @@ import json
 # import MySQLdb
 
 PORT_NUMBER = 8080
+if os.environ['PORT'] is not None:
+    print('using heroku port number %d' % int(os.environ['PORT']))
+    PORT_NUMBER = int(os.environ['PORT'])
 index_dir = 'nodanger/build'
 # mysql://b2f8d35aaf8c31:ab22610f@us-cdbr-iron-east-02.cleardb.net/heroku_d9d316ecf97289a?reconnect=true
 # Establish connection to local database
