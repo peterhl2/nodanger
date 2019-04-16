@@ -54,6 +54,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
     def __init__(self, request, client_address, server):
         # stupid cross-platform way to change directory to nodanger/src/build
+
         web_dir = os.getcwd()
         for dir in ('nodanger','build'):
             web_dir = os.path.join(web_dir, dir)
