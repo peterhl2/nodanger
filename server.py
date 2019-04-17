@@ -12,7 +12,6 @@ from dangerclusters import getDangerNodes
 
 
 index_dir = 'nodanger/build'
-cur = db.cursor()
 weekday = ""
 hour = ""
 
