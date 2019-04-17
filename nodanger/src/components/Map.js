@@ -7,6 +7,19 @@ const lengthDiff = 0.00318
 const startLat = 40.116264
 const startLng = -88.208665
 
+const palette = {
+  1: "violet",
+  2: "orchid",
+  3: "mediumpurple",
+  4: "mediumorchid",
+  5: "darkorchid",
+  6: "blueviolet",
+  7: "darkviolet",
+  8: "darkmegenta",
+  9: "purple",
+  10: "indigo"
+}
+
 class Map extends Component {
     static defaultProps = {
         center: {
@@ -42,11 +55,12 @@ class Map extends Component {
         let crimeMkrs = []
         for (let i=0; i<crimes.length; i++) {
             let crime = crimes[i]
-            let crimeStyle = {}
+            let crimeStyle = {backgroundColor: palette[crime[2]]}
             crimeMkrs.push(<Crime
                                 key={i+2}
                                 lat={crime[0]}
                                 lng={crime[1]}
+                                style={crimeStyle}
                                 text={'Crime!!!!!'}
                             />)
         }
