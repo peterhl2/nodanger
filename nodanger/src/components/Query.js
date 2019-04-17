@@ -55,7 +55,7 @@ class Query extends Component {
           const fetch_uri = temp_val + "/" + this.state.query
           fetch(fetch_uri)
             .then(response=> response.json())
-            .then(console.log)
+            .then(data => {this.props.setCrimeMkrs(data)})
             .catch(console.err);
         } else if (id === "query_type") {
           const temp_val = `${server_uri}/getcrimebytype`

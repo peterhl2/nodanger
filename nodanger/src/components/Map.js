@@ -41,10 +41,12 @@ class Map extends Component {
     createCrimeMkrs(crimes) {
         let crimeMkrs = []
         for (let i=0; i<crimes.length; i++) {
+            let crime = crimes[i]
+            let crimeStyle = {}
             crimeMkrs.push(<Crime
                                 key={i+2}
-                                lat={crimes[i].lat}
-                                lng={crimes[i].lng}
+                                lat={crime[0]}
+                                lng={crime[1]}
                                 text={'Crime!!!!!'}
                             />)
         }

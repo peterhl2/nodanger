@@ -23,10 +23,15 @@ class App extends Component {
             crimes: [],
         }
         this.logIn = this.logIn.bind(this)
+        this.setCrimeMkrs = this.setCrimeMkrs.bind(this)
         this.sendsafe = this.sendsafe.bind(this)
         this.groupDanger = this.groupDanger.bind(this)
         this.clearColors = this.clearColors.bind(this)
         this.setStartDest = this.setStartDest.bind(this)
+    }
+
+    setCrimeMkrs(data) {
+        this.setState({crimes: data})
     }
 
     sendsafe() {
@@ -114,7 +119,10 @@ class App extends Component {
         if (!this.state.loggedIn)
             page = <User logIn={this.logIn}/>
         else {
-            page = <Query sendsafe={this.sendsafe} groupDanger={this.groupDanger} clearColors={this.clearColors}/>
+            page = <Query sendsafe={this.sendsafe}
+                          groupDanger={this.groupDanger}
+                          clearColors={this.clearColors}
+                          setCrimeMkrs={this.setCrimeMkrs}/>
         }
 
         return (
