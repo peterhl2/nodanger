@@ -28,9 +28,6 @@ class CrimeDB:
         self.db.commit()
 
     def update_login(self, data):
-        print(data)
-        print(user)
-        print(days[data['weekday']])
         day = days[data['weekday']]
 
         self.cur.execute("""
@@ -56,7 +53,6 @@ class CrimeDB:
     def getCrimeTypes(self):
         self.cur.execute("SELECT DISTINCT crime_type FROM crimedata")
         crime_types = self.cur.fetchall()
-        print("HELLO")
         return crime_types
 
     def getCrimeById(self, id):
