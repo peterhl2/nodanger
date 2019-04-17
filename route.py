@@ -20,9 +20,9 @@ def getDangerRatings(weekday, hour):
             dangerrating += (dangerVals[crime[0]])*crime[1]
             count += crime[1]
         if count != 0:
-            ratings[i] = (dangerrating/count) + 1
+            ratings[i] = (dangerrating/count)
         else:
-            ratings[i] = 1
+            ratings[i] = 0
     return ratings
 
 # returns returns parents of each vertex in the SPT
