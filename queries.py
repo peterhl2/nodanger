@@ -23,7 +23,6 @@ class CrimeDB:
     # added for
     def cloud_connect(self):
         if 'PORT' in os.environ:
-            PORT_NUMBER = int(os.environ['PORT'])
             self.db = MySQLdb.connect(host="us-cdbr-iron-east-02.cleardb.net",
                 user="b2f8d35aaf8c31",
                 passwd="ab22610f",

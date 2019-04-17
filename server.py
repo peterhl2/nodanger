@@ -14,7 +14,11 @@ from dangerclusters import getDangerNodes
 index_dir = 'nodanger/build'
 weekday = ""
 hour = ""
-
+if 'PORT' in os.environ:
+    PORT_NUMBER = int(os.environ['PORT'])
+else:
+    PORT_NUMBER = 8000
+    
 class RequestHandler(SimpleHTTPRequestHandler):
     #used to store parameters for queries requests
     insertparams = []
