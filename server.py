@@ -5,27 +5,11 @@ import os
 import subprocess
 import argparse
 import json
-import MySQLdb
 import queries
 from route import safestpath
 from route import getCrimeRatings
 from dangerclusters import getDangerNodes
 
-# deployed on heroku
-if 'PORT' in os.environ:
-    PORT_NUMBER = int(os.environ['PORT'])
-    db = MySQLdb.connect(host="us-cdbr-iron-east-02.cleardb.net",
-        user="b2f8d35aaf8c31",
-        passwd="ab22610f",
-        db="heroku_d9d316ecf97289a")
-    db.ping(True)
-
-else:
-    PORT_NUMBER = 8080
-    db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-        user="root",         # your username
-        passwd="strangerdanger",  # your password
-        db="crime_schema")
 
 index_dir = 'nodanger/build'
 cur = db.cursor()
@@ -76,16 +60,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
         SimpleHTTPRequestHandler.end_headers(self)
 
     def do_GET(self):
-
-        # add reconnect logic with each new request
-        PORT_NUMBER = int(os.environ['PORT'])
-        db = MySQLdb.connect(host="us-cdbr-iron-east-02.cleardb.net",
-            user="b2f8d35aaf8c31",
-            passwd="ab22610f",
-            db="heroku_d9d316ecf97289a")
-        db.ping(True)
-        cur = db.cursor()
-
 
         # runs if path matches file in build directory
         request_path = Path(os.path.join(self.build_directory, self.path[1:]))
