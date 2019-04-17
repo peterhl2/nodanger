@@ -49,7 +49,7 @@ class App extends Component {
     }
 
     groupDanger() {
-        const fetch_uri = `${server_uri}/groupDanger`
+        const fetch_uri = `${server_uri}/groupdanger`
         fetch(fetch_uri, {
             method: 'POST',
             body: JSON.stringify({})
@@ -58,11 +58,11 @@ class App extends Component {
           .then(data => {
               this.setState({groupDanger: data})
           })
-          .then(console.log)
           .catch(console.err)
     }
 
     clearColors() {
+        console.log("clear")
         this.setState({pathIdx: [], groupDanger: [], crimes: []})
     }
 
@@ -114,7 +114,7 @@ class App extends Component {
         if (!this.state.loggedIn)
             page = <User logIn={this.logIn}/>
         else {
-            page = <Query sendsafe={this.sendsafe} groupDanger={this.groupDanger}/>
+            page = <Query sendsafe={this.sendsafe} groupDanger={this.groupDanger} clearColors={this.clearColors}/>
         }
 
         return (

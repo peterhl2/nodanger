@@ -8,18 +8,14 @@ import json
 import MySQLdb
 import queries
 from route import safestpath
+from route import getCrimeRatings
 from dangerclusters import getDangerNodes
 
 PORT_NUMBER = 8080
 index_dir = 'nodanger/build'
 
-# Establish connection to local database
-db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-                     user="root",         # your username
-                     passwd="strangerdanger",  # your password
-                     db="crime_schema")
-
-cur = db.cursor()
+weekday = ""
+hour = ""
 
 class RequestHandler(SimpleHTTPRequestHandler):
     #used to store parameters for queries requests
@@ -30,8 +26,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
     route = ""
     # intialize database object for access data
     crimeDB = queries.CrimeDB()
-    weekday = ""
-    hour = ""
     user = ""
 
     def __init__(self, request, client_address, server):
@@ -42,14 +36,15 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.route_mapping = {
             '/': self.get_homepage,
             '/getdata': self.get_data,
-            '/sendlogin': self.insert_login,
+            '/sendlogin': self.update_login,
             '/senduserexists': self.user_exists,
             '/sendusersignup': self.user_signup,
             '/sendsafe': self.send_safestPath,
+            '/senddate': self.query_dates,
             '/getcrimetypes': self.get_crimetypes,
-            '/getcrimebyid': self.get_crimebyid,
+            '/getcrime': self.get_crime,
             '/getcrimebytype': self.get_crimebytype,
-            '/groupDanger': self.get_danger_clusters,
+            '/groupdanger': self.get_danger_clusters,
             '/insert': self.insert,
             '/delete': self.delete,
             '/update': self.update,
@@ -149,6 +144,15 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps("HELLO").encode('utf-8'))
         return
 
+    def query_dates(self, data):
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+
+        print(data)
+        self.wfile.write(json.dumps(False).encode('utf-8'))
+        return
+
     def get_crimetypes(self):
         """
             route: getCrimeTypes
@@ -162,7 +166,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.wfile.write(json.dumps(crime_types).encode('utf-8'))
         return
 
-    def get_crimebyid(self):
+    def get_crime(self):
         """
             route: getCrimeTypes
             returns: crime types
@@ -171,8 +175,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        crime = self.crimeDB.getCrimeById(self.param)
-        self.wfile.write(json.dumps(crime).encode('utf-8'))
+        crime = self.crimeDB.getCrimeAtTimeOfLogin()
+        dots = getCrimeRatings(crime)
+        print(dots)
+        self.wfile.write(json.dumps(dots).encode('utf-8'))
         return
 
     def get_crimebytype(self):
@@ -267,9 +273,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-type','application/json')
         self.end_headers()
 
-        print("\n\nsend_safestPath")
+        print("\nsend_safestPath")
         print(data['start'])
-        route = safestpath("Friday", 20, int(data['start']), int(data['dest']))
+        print(queries.weekday, queries.hour)
+        route = safestpath(queries.weekday, queries.hour, int(data['start']), int(data['dest']))
         print(route)
         self.wfile.write(json.dumps(route).encode('utf-8'))
         return
@@ -287,7 +294,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
         print(queries.user)
         dangerclusters = getDangerNodes(queries.user)
-
+        print(dangerclusters)
         self.wfile.write(json.dumps(dangerclusters).encode('utf-8'))
         return
 
@@ -302,11 +309,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-type','application/json')
         self.end_headers()
 
-        # print(data)
-        # print(data['username'])
-        exists = self.crimeDB.checkUserExists(data['username'])
-        # print(self.weekday, self.hour)
-        # print(exists)
+        exists = self.crimeDB.checkUserExists(data['username'], data['password'])
+        if exists:
+            queries.user = data['username']
+
         self.wfile.write(json.dumps(exists).encode('utf-8'))
 
         return
@@ -323,7 +329,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
 
         print(data)
-        if not self.crimeDB.checkUserExists(data['username']):
+        if not self.crimeDB.checkUserExists(data['username'], data['password']):
             self.crimeDB.insert_newuser(data['username'], data['password'])
 
         queries.user = data['username']
@@ -332,7 +338,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
 
         return
 
-    def insert_login(self, data):
+    def update_login(self, data):
         """
             route: senddata
             returns: success message that we received data
@@ -343,12 +349,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-type','application/json')
         self.end_headers()
 
-        # print(data)
-        # print(queries.user)
-        # call insert_login to insert login info into db
-        self.crimeDB.insert_login(data)
-        print("FINISHED insert login")
-        # print(self.weekday, self.hour)
+        self.crimeDB.update_login(data)
+        queries.weekday = data['weekday']
+        queries.hour = data['hour']
+        print(queries.weekday, queries.hour)
         self.wfile.write(json.dumps(True).encode('utf-8'))
 
         return

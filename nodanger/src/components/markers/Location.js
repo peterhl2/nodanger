@@ -20,24 +20,27 @@ class Location extends Component {
 
     checkGroup(idx) {
         let group = this.props.groupDanger
-        if (group.length === 0) return false
+        if (group.length === 0) return 0
         for (let i=0; i<group.length; i++) {
-            if (group[i] === idx)
-                return true
+            if (group[i].idx === idx)
+                return group[i].value
         }
-        return false
+        return 0
     }
 
     render() {
         let style
-        if (this.props.idx == this.props.startIdx) {
+        let text = ""
+        if (this.props.idx === parseInt(this.props.startIdx)) {
             style = {backgroundColor:"red"}
-        } else if (this.props.idx == this.props.destIdx) {
+        } else if (this.props.idx === parseInt(this.props.destIdx)) {
             style = {backgroundColor:"green"}
         } else if (this.checkPath(this.props.idx)) {
             style = {backgroundColor:"DeepSkyBlue", opacity: "1"}
-        } else if (this.checkGroup(this.props.idx)) {
-            style = {backgroundColor:"DeepSkyBlue", opacity: "1", height:"40px", width:"40px"}
+        } else if (this.checkGroup(this.props.idx) !== 0) {
+            style = {backgroundColor:"yellow", opacity: "1", borderRadius:"0%", color:"black"}
+            let val = this.checkGroup(this.props.idx)
+            text = Math.round(val)
         }
         return (
             <div lat={this.props.lat}
@@ -45,7 +48,7 @@ class Location extends Component {
                  >
 
                 <span className="location" style={style}>
-                    {this.props.text}
+                    {text}
                 </span>
             </div>
         )

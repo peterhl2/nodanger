@@ -20,9 +20,9 @@ def getDangerRatings(weekday, hour):
             dangerrating += (dangerVals[crime[0]])*crime[1]
             count += crime[1]
         if count != 0:
-            ratings[i] = dangerrating/count
+            ratings[i] = (dangerrating/count) + 1
         else:
-            ratings[i] = 0
+            ratings[i] = 1
     return ratings
 
 # returns returns parents of each vertex in the SPT
@@ -82,6 +82,13 @@ def safestpath(weekday, hour, start, dest):
         child = parent
     path.reverse()
     return path
+
+def getCrimeRatings(crime):
+    ratings = []
+    for c in crime:
+        ratings.append([c[0],c[1],dangerVals[c[2]]])
+    # print(ratings)
+    return ratings
 
 # test
 # print(safestpath("Friday", 20, 79, 0))

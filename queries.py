@@ -1,6 +1,8 @@
 import MySQLdb
 
 user = None
+weekday = None
+hour = None
 days = {1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thurday", 5:"Friday", 6:"Saturday", 0:"Sunday"}
 # define a class
 class CrimeDB:
@@ -14,24 +16,29 @@ class CrimeDB:
 
         self.cur = self.db.cursor()
 
-    def checkUserExists(self, username):
-        user = self.cur.execute("SELECT name FROM users WHERE name=%s", [username])
+    def checkUserExists(self, username, password):
+        user = self.cur.execute("SELECT name FROM users WHERE name=%s AND password=%s", [username,password])
         if user != 0:
             return True
         return False
 
     def insert_newuser(self, username, passwd):
         self.cur.execute("INSERT INTO users (name, password) VALUES (%s, %s)", [username, passwd])
+        self.cur.execute("INSERT INTO logins (username) VALUES (%s)", [username])
         self.db.commit()
 
-    def insert_login(self, data):
+    def update_login(self, data):
         print(data)
         print(user)
         print(days[data['weekday']])
         day = days[data['weekday']]
 
-        self.cur.execute("""INSERT INTO logins (username, weekday, day, month, year, hour)
-                         VALUES (%s,%s,%s,%s,%s,%s)""", [user, day, data['day'], data['month'], data['year'], data['hour']])
+        self.cur.execute("""
+                        UPDATE logins
+                        SET weekday=%s, day=%s, month=%s, year=%s, hour=%s
+                        WHERE username=%s
+                        """, [day, data['day'], data['month'], data['year'], data['hour'], user])
+
         self.db.commit()
 
     def insert(self, crimeid):
@@ -72,8 +79,9 @@ class CrimeDB:
 
     # returns crimes types and counts at location and time
     # used by safestpath feature
-    def getCrimeAtTimeAndLocation(self, weekday, hour, lat, lng):
+    def getCrimeAtTimeAndLocation(self, wday, hour, lat, lng):
         # change peter to username
+        wd = days[wday]
         self.cur.execute("""
                     SELECT crime_type, COUNT(*)
                     FROM crimedata
@@ -81,7 +89,7 @@ class CrimeDB:
                     AND longitude < %s+0.00159 AND longitude > %s-0.00159
                     AND weekDay = %s AND hour = %s
                     GROUP BY crime_type
-                    """,[lat, lat, lng, lng, weekday, hour])
+                    """,[lat, lat, lng, lng, wd, hour])
         crimes = self.cur.fetchall()
         return crimes
 
@@ -104,5 +112,5 @@ class CrimeDB:
 
 #test
 # crimeDB = CrimeDB()
-# user = "peter"
-# print(crimeDB.getCrimeAtTimeOfLogin())
+# user = "bingbong"
+# print(crimeDB.insert_newuser(user, "bob"))
