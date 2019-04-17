@@ -13,28 +13,35 @@ class User extends Component {
             username: "",
             password: "",
             tryAgain: false,
+            exists: false,
         }
         this.handleChange = this.handleChange.bind(this)
         this.handleSubmit = this.handleSubmit.bind(this)
+        this.checkUserExists = this.checkUserExists.bind(this)
+        this.createUser = this.createUser.bind(this)
     }
 
     checkUserExists() {
-      const fetch_uri = `${server_uri}/senddata`
+      const fetch_uri = `${server_uri}/senduserexists`
       let exists = false
+      const user = {username: this.state.username,
+                    password: this.state.password,
+      }
       fetch(fetch_uri, {
           method: 'POST',
-          body: JSON.stringify({"username": this.state.username})
+          body: JSON.stringify(user)
       })
         .then(response=>response.json())
         .then(data => {
-            exists = data.exists
+            exists = data
+            this.setState({exists: data})
         })
         .catch(console.err)
         return exists
     }
 
     createUser() {
-        const fetch_uri = `${server_uri}/senddata`
+        const fetch_uri = `${server_uri}/sendusersignup`
         const newUser = {
             username: this.state.username,
             password: this.state.password,
@@ -58,8 +65,8 @@ class User extends Component {
         // Set default tryAgain to not display
         this.setState({tryAgain: false})
         // Check database if user exists
-        // const inUse = this.checkUserExists()
-        const inUse = false
+        this.checkUserExists()
+        const inUse = this.state.exists
 
         if (name === "signup") {
             if (!inUse) { // Doesn't exist, create user
@@ -70,7 +77,6 @@ class User extends Component {
             }
         } else if (name === "login") {
             if (inUse) { //Valid: give normal page
-                //TODO: Get User Data
                 this.props.logIn()
             } else { // Invalid: try again
                 this.setState({tryAgain: true})
@@ -79,6 +85,9 @@ class User extends Component {
     }
 
     render() {
+        if (this.state.exists) {
+          this.props.logIn()
+        }
         return (
             <div className="user">
                 <input className="row col"

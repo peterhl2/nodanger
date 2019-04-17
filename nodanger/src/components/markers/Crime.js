@@ -5,9 +5,11 @@ import "./Marker.css"
 function Crime(props) {
     return (
         <div lat={props.lat}
-             lng={props.lng}>
+             lng={props.lng}
+             style={props.style}
+             >
 
-             <span className="crime">
+             <span className="crime" style={props.style}>
                  {props.text}
              </span>
         </div>

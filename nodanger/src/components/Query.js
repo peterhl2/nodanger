@@ -2,6 +2,7 @@ import React, { Component } from "react"
 import QueryResults from "./QueryResults"
 import { Popup } from 'semantic-ui-react'
 import Selectors from "./Selectors"
+import Date from "./Date"
 
 const server_uri = 'http://cs411-nodanger.herokuapp.com';//'http://localhost:8080'
 
@@ -11,37 +12,50 @@ class Query extends Component {
         this.state = {
             query: "",
             queryData: [],
-            start: "",
-            dest: "",
             fields: "",
             crimeType: "",
             weekday: "",
             latitude: "",
             longtitude: "",
+            startDate: "",
+            endDate: "",
+            startDateObj: {},
+            endDateObj: {},
         }
         this.handleQuery = this.handleQuery.bind(this)
         this.handleChange = this.handleChange.bind(this)
+        this.handleDateChange = this.handleDateChange.bind(this)
         this.handleTableChange = this.handleTableChange.bind(this)
-        this.handleAdv = this.handleAdv.bind(this)
     }
 
     handleQuery(event) {
         const {id} = event.target
         const value = this.state.query
-        console.log(id, value)
 
-        if (id === "crimes") {
+        if (id === "crimes_types") {
           let fetch_uri = `${server_uri}/getcrimetypes`
           fetch(fetch_uri)
             .then(response=> response.text())
             .then(console.log)
             .catch(console.err);
-        } else if (id === "query_crime") {
-          const temp_val = `${server_uri}/getcrimebyid`
-          const fetch_uri = temp_val + "/" + this.state.query
-          fetch(fetch_uri)
+        } else if (id === "senddate") {
+          let fetch_uri = `${server_uri}/senddate`
+          fetch(fetch_uri, {
+              method: 'POST',
+              body: JSON.stringify({
+                  start: this.state.startDateObj,
+                  end: this.state.endDateObj,
+              })
+          })
             .then(response=> response.text())
             .then(console.log)
+            .catch(console.err);
+        } else if (id === "query_crime") {
+          const temp_val = `${server_uri}/getcrime`
+          const fetch_uri = temp_val + "/" + this.state.query
+          fetch(fetch_uri)
+            .then(response=> response.json())
+            .then(data => {this.props.setCrimeMkrs(data)})
             .catch(console.err);
         } else if (id === "query_type") {
           const temp_val = `${server_uri}/getcrimebytype`
@@ -81,26 +95,36 @@ class Query extends Component {
       }
     }
 
-    handleAdv(event) {
-        const {id} = event.target
-        if (id === "adv1") {
-            const fetch_uri = `${server_uri}/getnumberofcrimes`
-            fetch(fetch_uri)
-              .then(response=> response.text())
-              .then(console.log)
-              .catch(console.err);
-        } else if (id === "adv2") {
-            const fetch_uri = `${server_uri}/getuserinfo`
-            fetch(fetch_uri)
-              .then(response=> response.text())
-              .then(console.log)
-              .catch(console.err);
-        }
-    }
-
     handleChange(event) {
         const {name, value} = event.target
         this.setState({[name]: [value]})
+    }
+
+    handleDateChange(event) {
+        this.handleChange(event)
+        const {name, value} = event.target
+        let date = value.split("/")
+        if (date.length != 3 || date[2].length<4)
+            return
+        if (name==="startDate") {
+            this.setState({
+                startDateObj: {
+                    month: parseInt(date[0]),
+                    day: parseInt(date[1]),
+                    year: parseInt(date[2])
+                }
+            })
+        } else {
+            this.setState({
+                endDateObj: {
+                    month: parseInt(date[0]),
+                    day: parseInt(date[1]),
+                    year: parseInt(date[2])
+                }
+            })
+        }
+        console.log(this.state.startDateObj)
+        console.log(this.state.endDateObj)
     }
 
     render() {
@@ -116,22 +140,6 @@ class Query extends Component {
                 </div>
                 <div className="row">
                     <input className="col-10"
-                          name="start"
-                          type="text"
-                          placeholder="Start Location"
-                          value={this.state.start}
-                          onChange={this.handleChange}/>
-                </div>
-                <div className="row">
-                    <input className="col-10"
-                         name="dest"
-                         type="text"
-                         placeholder="Destination"
-                         value={this.state.dest}
-                         onChange={this.handleChange}/>
-                </div>
-                <div className="row">
-                    <input className="col-10"
                          name="fields"
                          type="text"
                          placeholder="Argument Fields"
@@ -139,13 +147,19 @@ class Query extends Component {
                          onChange={this.handleChange}/>
                          <Selectors handleChange={this.handleChange} crimeType={this.state.crimeType} weekday={this.state.weekday} latitude={this.state.latitude} longtitude={this.state.longtitiude}/>
                 </div>
+                <div className="row">
+                    <Date startDate={this.state.startDate}
+                          endDate={this.state.endDate}
+                          handleDateChange={this.handleDateChange}
+                          />
+                </div>
 
                 {/*Full Queries*/}
                 <div className="row">
-                  <Popup trigger={<button onClick={this.handleQuery} id="columns" className="ui icon btn btn-danger" style={{"margin": "10px"}}>Columns</button>}
+                  <Popup trigger={<button onClick={this.handleQuery} id="crimes_types" className="ui icon btn btn-danger" style={{"margin": "10px"}}>Crimes Types</button>}
                          position="bottom center"
-                         content="List Col names" />
-                  <Popup trigger={<button onClick={this.handleQuery} id="crimes" className="ui icon btn btn-danger" style={{"margin": "10px"}}>Crimes</button>}
+                         content="List Crime Types" />
+                  <Popup trigger={<button onClick={this.handleQuery} id="senddate" className="ui icon btn btn-danger" style={{"margin": "10px"}}>Send Dates</button>}
                          position="bottom center"
                          content="List Crime Types" />
                 </div>
@@ -179,15 +193,17 @@ class Query extends Component {
                          position="bottom center"
                          content="fields: /id/cols" />
                 </div>
-                {/*Advanced Queries*/}
+                {/*Advanced Features*/}
                 <div className="row">
-                  <Popup trigger={<button onClick={this.handleAdv} id="adv1" className="ui icon btn btn-info" style={{"margin": "10px"}}>Adv 1</button>}
-                         position="bottom center"
-                         content="fields: /id/cols" />
-                  <Popup trigger={<button onClick={this.handleAdv} id="adv2" className="ui icon btn btn-info" style={{"margin": "10px"}}>Adv 2</button>}
-                         position="bottom center"
-                         content="fields: /id/cols" />
-
+                    <Popup trigger={<button onClick={this.props.sendsafe} id="send" className="ui icon btn btn-warning" style={{"margin": "10px"}}>Path</button>}
+                           position="bottom center"
+                           content="Send the Start/Dest location" />
+                    <Popup trigger={<button onClick={this.props.groupDanger} id="group" className="ui icon btn btn-warning" style={{"margin": "10px"}}>Groups</button>}
+                           position="bottom center"
+                           content="Group most dangerous areas" />
+                    <Popup trigger={<button onClick={this.props.clearColors} id="reset" className="ui icon btn btn-warning" style={{"margin": "10px"}}>Reset</button>}
+                           position="bottom center"
+                           content="Clear map colors" />
                 </div>
 
                 <QueryResults queryData={this.state.queryData}/>

@@ -7,6 +7,19 @@ const lengthDiff = 0.00318
 const startLat = 40.116264
 const startLng = -88.208665
 
+const palette = {
+  1: "violet",
+  2: "orchid",
+  3: "mediumpurple",
+  4: "mediumorchid",
+  5: "darkorchid",
+  6: "blueviolet",
+  7: "darkviolet",
+  8: "darkmegenta",
+  9: "purple",
+  10: "indigo"
+}
+
 class Map extends Component {
     static defaultProps = {
         center: {
@@ -31,20 +44,23 @@ class Map extends Component {
     mapClick(key, childProps) {
         if (this.state.pickStart) {
             this.setState({pickStart: false, start: childProps, startIdx: key})
-            this.props.setStartDest(childProps, this.state.dest)
+            this.props.setStartDest(key, this.state.destIdx)
         } else {
             this.setState({pickStart: true, dest: childProps, destIdx: key})
-            this.props.setStartDest(this.state.start, childProps)
+            this.props.setStartDest(this.state.startIdx, key)
         }
     }
 
     createCrimeMkrs(crimes) {
         let crimeMkrs = []
         for (let i=0; i<crimes.length; i++) {
+            let crime = crimes[i]
+            let crimeStyle = {backgroundColor: palette[crime[2]]}
             crimeMkrs.push(<Crime
                                 key={i+2}
-                                lat={crimes[i].lat}
-                                lng={crimes[i].lng}
+                                lat={crime[0]}
+                                lng={crime[1]}
+                                style={crimeStyle}
                                 text={'Crime!!!!!'}
                             />)
         }
@@ -67,6 +83,8 @@ class Map extends Component {
                                 text={""}
                                 startIdx={this.state.startIdx}
                                 destIdx={this.state.destIdx}
+                                pathIdx={this.props.pathIdx}
+                                groupDanger={this.props.groupDanger}
                             />)
             }
         }

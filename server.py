@@ -6,9 +6,12 @@ import subprocess
 import argparse
 import json
 import MySQLdb
+import queries
+from route import safestpath
+from route import getCrimeRatings
+from dangerclusters import getDangerNodes
 
 # deployed on heroku
-
 if 'PORT' in os.environ:
     PORT_NUMBER = int(os.environ['PORT'])
     db = MySQLdb.connect(host="us-cdbr-iron-east-02.cleardb.net",
@@ -26,6 +29,8 @@ else:
 
 index_dir = 'nodanger/build'
 cur = db.cursor()
+weekday = ""
+hour = ""
 
 class RequestHandler(SimpleHTTPRequestHandler):
     #used to store parameters for queries requests
@@ -34,24 +39,9 @@ class RequestHandler(SimpleHTTPRequestHandler):
     updateconditions = ""
     params = ""
     route = ""
-
-    def parse_route(routeMap):
-        print(routeMap)
-        if routeMap == "/":
-            return routeMap
-        route_splt = routeMap.split("/")
-        print(route_splt)
-        route = "/"+route_splt[1]
-        print(route)
-        if len(route_splt) > 2:
-            param = route_splt[2]
-        return route
-
-    def getCrimeTypes():
-        cur.execute("SELECT DISTINCT crime_type FROM crimedata")
-        crime_types = cur.fetchall()
-        return crime_types
-        pass
+    # intialize database object for access data
+    crimeDB = queries.CrimeDB()
+    user = ""
 
     def __init__(self, request, client_address, server):
         # stupid cross-platform way to change directory to nodanger/src/build
@@ -62,10 +52,15 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.route_mapping = {
             '/': self.get_homepage,
             '/getdata': self.get_data,
-            '/senddata': self.send_data,
+            '/sendlogin': self.update_login,
+            '/senduserexists': self.user_exists,
+            '/sendusersignup': self.user_signup,
+            '/sendsafe': self.send_safestPath,
+            '/senddate': self.query_dates,
             '/getcrimetypes': self.get_crimetypes,
-            '/getcrimebyid': self.get_crimebyid,
+            '/getcrime': self.get_crime,
             '/getcrimebytype': self.get_crimebytype,
+            '/groupdanger': self.get_danger_clusters,
             '/insert': self.insert,
             '/delete': self.delete,
             '/update': self.update,
@@ -81,7 +76,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
         SimpleHTTPRequestHandler.end_headers(self)
 
     def do_GET(self):
-
 
         # add reconnect logic with each new request
         PORT_NUMBER = int(os.environ['PORT'])
@@ -118,11 +112,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
                     route_splt = routeMap.split("/")
 
                     self.route = "/"+route_splt[1]
-                    # print(self.route)
-                    # print("route is:")
-                    # print(self.route_mapping[self.route])
-                    # print(self.get_crimebytype)
-                    # print(route)
+
                     if len(route_splt) == 3:
                         self.param = route_splt[2].replace("%20", " ")
                     elif len(route_splt) > 3:
@@ -132,16 +122,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
                     api_fn = self.route_mapping["/"+route_splt[1]]
                     return api_fn()
 
-
-
-                # print("\n" + self.param)
-                # print("HELLO")
-
-                # api_fn = self.route_mapping[self.route]
-                # return api_fn()
-
-            except Exception as e:
-                print('Exception', e)
+            except:
                 print('no api fn found for %s' % self.route)
 
     def do_POST(self):
@@ -181,8 +162,16 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        # data = queries.getCrimeByType()
         self.wfile.write(json.dumps("HELLO").encode('utf-8'))
+        return
+
+    def query_dates(self, data):
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+
+        print(data)
+        self.wfile.write(json.dumps(False).encode('utf-8'))
         return
 
     def get_crimetypes(self):
@@ -194,12 +183,11 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        cur.execute("SELECT DISTINCT crime_type FROM crimedata")
-        crime_types = cur.fetchall()
+        crime_types = self.crimeDB.getCrimeTypes()
         self.wfile.write(json.dumps(crime_types).encode('utf-8'))
         return
 
-    def get_crimebyid(self):
+    def get_crime(self):
         """
             route: getCrimeTypes
             returns: crime types
@@ -208,9 +196,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        cur.execute("SELECT * FROM crimedata WHERE id=%s", [self.param])
-        crime = cur.fetchall()
-        self.wfile.write(json.dumps(crime).encode('utf-8'))
+        crime = self.crimeDB.getCrimeAtTimeOfLogin()
+        dots = getCrimeRatings(crime)
+        print(dots)
+        self.wfile.write(json.dumps(dots).encode('utf-8'))
         return
 
     def get_crimebytype(self):
@@ -222,10 +211,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        print(self.param)
-        cur.execute("SELECT * FROM crimedata WHERE crime_type=%s", [self.param])
-        crimes = cur.fetchall()
+        crimes = self.crimeDB.getCrimeByType(self.param)
         self.wfile.write(json.dumps(crimes).encode('utf-8'))
         return
 
@@ -238,10 +224,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        print(self.param)
-        cur.execute("INSERT INTO crimedata (id) VALUES (%s)", [self.param])
-        self.wfile.write(json.dumps("INSERTED").encode('utf-8'))
+        crimes = self.crimeDB.insert(self.param)
+        self.wfile.write(json.dumps("INSERT SUCCESSFUL").encode('utf-8'))
         return
 
     def delete(self):
@@ -253,10 +237,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        print(self.param)
-        cur.execute("DELETE FROM crimedata WHERE id=%s", [self.param])
-        self.wfile.write(json.dumps("DELETED").encode('utf-8'))
+        crimes = self.crimeDB.delete(self.param)
+        self.wfile.write(json.dumps("DELETED SUCCESSFUL").encode('utf-8'))
         return
 
     def update(self):
@@ -268,10 +250,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        print(self.param, self.updateconditions)
-        cur.execute("UPDATE crimedata SET crime_type=%s WHERE id=%s", [self.updateconditions, self.param])
-        self.wfile.write(json.dumps("UPDATED").encode('utf-8'))
+        crimes = self.crimeDB.update(self.updateconditions, self.param)
+        self.wfile.write(json.dumps("UPDATED SUCCESSFUL").encode('utf-8'))
         return
 
     def getNumberOfCrimes(self):
@@ -284,14 +264,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        #replace 40 with users current Location
-        cur.execute("""
-                    SELECT crime_type, COUNT(*)
-                    FROM crimedata WHERE latitude < 40+(3/69) AND latitude > 40+(1/69)
-                    GROUP BY crime_type
-                    """)
-        crimes = cur.fetchall()
+        crimes = self.crimeDB.getCrimeAtLocation(40, 40)
         self.wfile.write(json.dumps(crimes).encode('utf-8'))
         return
 
@@ -306,34 +279,103 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-        print("\n\n\nGOT THERE")
-        cur.execute("""
-                    SELECT *
-                    FROM crimedata
-                    WHERE id = ANY (
-                    SELECT c.id
-                    FROM crimedata c, logins l, users u
-                    WHERE l.username = "peter" and c.weekday = l.weekday and l.hour = c.hour)
-                    """)
-        crimes = cur.fetchall()
+        crimes = self.crimeDB.getCrimeAtTimeOfLogin("peter")
         self.wfile.write(json.dumps(crimes).encode('utf-8'))
         return
 
-    def send_data(self, data):
+    def send_safestPath(self, data):
         """
             route: senddata
             returns: success message that we received data
             called from App.js (componentDidMount)
         """
-        self.send_response(201)
-        print("\n\n\n\n")
-        print(data)
-        if(data['type'] == 'crimes'):
-            print("BYE")
-            response = queries.getCrimeTypes()
+        # self.send_response(201)
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
 
-        print(response)
-        self.wfile.write(json.dumps(response).encode('utf-8'))
+        print("\nsend_safestPath")
+        print(data['start'])
+        print(queries.weekday, queries.hour)
+        route = safestpath(queries.weekday, queries.hour, int(data['start']), int(data['dest']))
+        print(route)
+        self.wfile.write(json.dumps(route).encode('utf-8'))
+        return
+
+    def get_danger_clusters(self, data):
+        """
+            route: senddata
+            returns: success message that we received data
+            called from App.js (componentDidMount)
+        """
+        # self.send_response(201)
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+
+        print(queries.user)
+        dangerclusters = getDangerNodes(queries.user)
+        print(dangerclusters)
+        self.wfile.write(json.dumps(dangerclusters).encode('utf-8'))
+        return
+
+    def user_exists(self, data):
+        """
+            route: senddata
+            returns: success message that we received data
+            called from App.js (componentDidMount)
+        """
+        exists = False
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+
+        exists = self.crimeDB.checkUserExists(data['username'], data['password'])
+        if exists:
+            queries.user = data['username']
+
+        self.wfile.write(json.dumps(exists).encode('utf-8'))
+
+        return
+
+    def user_signup(self, data):
+        """
+            route: senddata
+            returns: success message that we received data
+            called from App.js (componentDidMount)
+        """
+        # self.send_response(201)
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+
+        print(data)
+        if not self.crimeDB.checkUserExists(data['username'], data['password']):
+            self.crimeDB.insert_newuser(data['username'], data['password'])
+
+        queries.user = data['username']
+        print(queries.user)
+        self.wfile.write(json.dumps(True).encode('utf-8'))
+
+        return
+
+    def update_login(self, data):
+        """
+            route: senddata
+            returns: success message that we received data
+            called from App.js (componentDidMount)
+        """
+        # self.send_response(201)
+        self.send_response(200)
+        self.send_header('Content-type','application/json')
+        self.end_headers()
+
+        self.crimeDB.update_login(data)
+        queries.weekday = data['weekday']
+        queries.hour = data['hour']
+        print(queries.weekday, queries.hour)
+        self.wfile.write(json.dumps(True).encode('utf-8'))
+
         return
 
 def start_server():

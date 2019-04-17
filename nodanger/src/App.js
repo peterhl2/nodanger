@@ -16,31 +16,63 @@ class App extends Component {
         super()
         this.state = {
             loggedIn: false,
-            start: {"lat":"40.1", "lng":"-88.24"},
-            dest: {"lat":"40.12", "lng":"-88.21"},
+            startIdx: 0,
+            destIdx: 1,
+            pathIdx: [],
+            groupDanger: [],
+            crimes: [],
         }
         this.logIn = this.logIn.bind(this)
-        this.sendData = this.sendData.bind(this)
+        this.setCrimeMkrs = this.setCrimeMkrs.bind(this)
+        this.sendsafe = this.sendsafe.bind(this)
+        this.groupDanger = this.groupDanger.bind(this)
+        this.clearColors = this.clearColors.bind(this)
         this.setStartDest = this.setStartDest.bind(this)
     }
 
-    sendData() {
-        const fetch_uri = `${server_uri}/senddata`
+    setCrimeMkrs(data) {
+        this.setState({crimes: data})
+    }
+
+    sendsafe() {
+        const fetch_uri = `${server_uri}/sendsafe`
         const data = {
-            start: this.state.start,
-            dest: this.state.dest
+            start: this.state.startIdx,
+            dest: this.state.destIdx
         }
+
         fetch(fetch_uri, {
             method: 'POST',
             body: JSON.stringify(data)
         })
-          .then(response=> response.json())
+          .then(response => response.json())
+          .then(data => {
+              this.setState({pathIdx: data})
+          })
           .then(console.log)
           .catch(console.err)
     }
 
+    groupDanger() {
+        const fetch_uri = `${server_uri}/groupdanger`
+        fetch(fetch_uri, {
+            method: 'POST',
+            body: JSON.stringify({})
+        })
+          .then(response => response.json())
+          .then(data => {
+              this.setState({groupDanger: data})
+          })
+          .catch(console.err)
+    }
+
+    clearColors() {
+        console.log("clear")
+        this.setState({pathIdx: [], groupDanger: [], crimes: []})
+    }
+
     setStartDest(start, dest) {
-        this.setState({start: start, dest: dest})
+        this.setState({startIdx: start, destIdx: dest})
     }
 
     getRequest() {
@@ -64,7 +96,7 @@ class App extends Component {
 
     logIn(event) {
         let d = new Date()
-        const fetch_uri = `${server_uri}/senddata`
+        const fetch_uri = `${server_uri}/sendlogin`
         fetch(fetch_uri, {
             method: 'POST',
             body: JSON.stringify({
@@ -87,7 +119,10 @@ class App extends Component {
         if (!this.state.loggedIn)
             page = <User logIn={this.logIn}/>
         else {
-            page = <Query />
+            page = <Query sendsafe={this.sendsafe}
+                          groupDanger={this.groupDanger}
+                          clearColors={this.clearColors}
+                          setCrimeMkrs={this.setCrimeMkrs}/>
         }
 
         return (
@@ -100,16 +135,14 @@ class App extends Component {
 
                     {page}
 
-                    <Popup trigger={<button onClick={this.sendData} id="send" className="ui icon btn btn-primary" style={{"margin": "10px"}}>Send</button>}
-                           position="bottom center"
-                           content="Send the Start/Dest location" />
-
                     <Map    start={this.state.start}
                             dest={this.state.dest}
+                            pathIdx={this.state.pathIdx}
+                            groupDanger={this.state.groupDanger}
                             center={{lat:40.1000000, lng:-88.2220708}}
                             zoom={14.5}
                             setStartDest={this.setStartDest}
-                            crimes={[{"lat":"40.1105883", "lng":"-88.2220708"}, {"lat":"40.110", "lng":"-88.22"}]}/>
+                            crimes={this.state.crimes}/>
                 </header>
             </div>
         );
