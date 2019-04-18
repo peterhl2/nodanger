@@ -1,8 +1,6 @@
 import React, { Component } from "react"
 import QueryResults from "./QueryResults"
 import { Popup } from 'semantic-ui-react'
-import Selectors from "./Selectors"
-import Date from "./Date"
 
 const server_uri = 'http://cs411-nodanger.herokuapp.com';//'http://localhost:8080'
 
@@ -145,13 +143,6 @@ class Query extends Component {
                          placeholder="Argument Fields"
                          value={this.state.fields}
                          onChange={this.handleChange}/>
-                         <Selectors handleChange={this.handleChange} crimeType={this.state.crimeType} weekday={this.state.weekday} latitude={this.state.latitude} longtitude={this.state.longtitiude}/>
-                </div>
-                <div className="row">
-                    <Date startDate={this.state.startDate}
-                          endDate={this.state.endDate}
-                          handleDateChange={this.handleDateChange}
-                          />
                 </div>
 
                 {/*Full Queries*/}

@@ -4,7 +4,7 @@ import os
 user = None
 weekday = None
 hour = None
-days = {1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thurday", 5:"Friday", 6:"Saturday", 0:"Sunday"}
+days = {1:"Monday", 2:"Tuesday", 3:"Wednesday", 4:"Thursday", 5:"Friday", 6:"Saturday", 0:"Sunday"}
 # define a class
 class CrimeDB:
     lengthDiff = 0.00159
@@ -44,9 +44,6 @@ class CrimeDB:
 
     def update_login(self, data):
         self.cloud_connect()
-        print(data)
-        print(user)
-        print(days[data['weekday']])
         day = days[data['weekday']]
 
         self.cur.execute("""
@@ -76,7 +73,6 @@ class CrimeDB:
         self.cloud_connect()
         self.cur.execute("SELECT DISTINCT crime_type FROM crimedata")
         crime_types = self.cur.fetchall()
-        print("HELLO")
         return crime_types
 
     def getCrimeById(self, id):

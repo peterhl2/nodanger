@@ -77,10 +77,8 @@ class RequestHandler(SimpleHTTPRequestHandler):
         else:
 
             try:
-                print('\n\n\n')
                 #parse routeMap for paramters
                 routeMap = self.path
-                print(routeMap)
                 if routeMap == "/":
                     self.route = routeMap
                     api_fn = self.route_mapping[self.route]
@@ -146,8 +144,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header('Content-type','application/json')
         self.end_headers()
-
-        print(data)
         self.wfile.write(json.dumps(False).encode('utf-8'))
         return
 
@@ -175,7 +171,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         crime = self.crimeDB.getCrimeAtTimeOfLogin()
         dots = getCrimeRatings(crime)
-        print(dots)
         self.wfile.write(json.dumps(dots).encode('utf-8'))
         return
 
@@ -271,11 +266,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-type','application/json')
         self.end_headers()
 
-        print("\nsend_safestPath")
-        print(data['start'])
-        print(queries.weekday, queries.hour)
         route = safestpath(queries.weekday, queries.hour, int(data['start']), int(data['dest']))
-        print(route)
         self.wfile.write(json.dumps(route).encode('utf-8'))
         return
 
@@ -290,9 +281,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-type','application/json')
         self.end_headers()
 
-        print(queries.user)
         dangerclusters = getDangerNodes(queries.user)
-        print(dangerclusters)
         self.wfile.write(json.dumps(dangerclusters).encode('utf-8'))
         return
 
@@ -326,12 +315,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.send_header('Content-type','application/json')
         self.end_headers()
 
-        print(data)
         if not self.crimeDB.checkUserExists(data['username'], data['password']):
             self.crimeDB.insert_newuser(data['username'], data['password'])
 
         queries.user = data['username']
-        print(queries.user)
         self.wfile.write(json.dumps(True).encode('utf-8'))
 
         return
@@ -350,7 +337,6 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.crimeDB.update_login(data)
         queries.weekday = data['weekday']
         queries.hour = data['hour']
-        print(queries.weekday, queries.hour)
         self.wfile.write(json.dumps(True).encode('utf-8'))
 
         return

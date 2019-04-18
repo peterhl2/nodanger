@@ -128,7 +128,6 @@ class App extends Component {
         return (
             <div className="App">
                 <header className="App-header">
-                    <img src={logo} className="App-logo" alt="logo" />
                     <p>
                         Welcome to No Danger 404, a future without risk
                     </p>
