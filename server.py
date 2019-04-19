@@ -173,6 +173,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
         self.end_headers()
         crime = self.crimeDB.getCrimeAtTimeOfLogin()
         dots = getCrimeRatings(crime)
+        print(dots)
         self.wfile.write(json.dumps(dots).encode('utf-8'))
         return
 
